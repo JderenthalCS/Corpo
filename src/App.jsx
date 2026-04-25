@@ -5,6 +5,7 @@ import UploadPage from "./pages/UploadPage.jsx";
 import ReportsPage from "./pages/ReportsPage.jsx";
 import ReportDetailPage from "./pages/ReportDetailPage.jsx";
 import AccountPage from "./pages/AccountPage.jsx";
+import AuthPage from "./pages/AuthPage.jsx";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/reports/:id" element={<ReportDetailPage />} />
           <Route path="/account" element={<AccountPage />} />
+          <Route path="/auth" element={<AuthPage />} />
         </Routes>
       </main>
     </div>

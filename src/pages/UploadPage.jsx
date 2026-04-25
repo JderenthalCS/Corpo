@@ -1,13 +1,31 @@
 import { useRef, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
 
 export default function UploadPage() {
   const fileInputRef = useRef(null);
+
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState("");
 
   function handleFile(file) {
     if (!file) return;
+
+    const allowedTypes = [
+      "application/pdf",
+      "text/plain",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      setMessage("Please upload a PDF, DOC, DOCX, or TXT file.");
+      return;
+    }
+
     setSelectedFile(file);
+    setMessage("");
   }
 
   function handleDrop(event) {
@@ -16,24 +34,101 @@ export default function UploadPage() {
     handleFile(event.dataTransfer.files[0]);
   }
 
-  function handleAnalyze() {
-    if (!selectedFile) return alert("Please upload a file first.");
+  async function handleUpload() {
+    if (!selectedFile) {
+      setMessage("Please choose a file first.");
+      return;
+    }
 
-    // Later: send selectedFile to FastAPI/Node backend.
-    alert(`Ready to analyze: ${selectedFile.name}`);
+    setUploading(true);
+    setMessage("");
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      setMessage("You must be logged in to upload a document.");
+      setUploading(false);
+      return;
+    }
+
+    const documentId = crypto.randomUUID();
+    const filePath = `${user.id}/${documentId}/${selectedFile.name}`;
+
+    const { error: storageError } = await supabase.storage
+      .from("documents")
+      .upload(filePath, selectedFile);
+
+    if (storageError) {
+      setMessage(storageError.message);
+      setUploading(false);
+      return;
+    }
+
+    const { data: insertedDocument, error: dbError } = await supabase
+      .from("documents")
+      .insert({
+        id: documentId,
+        user_id: user.id,
+        file_name: selectedFile.name,
+        file_path: filePath,
+        file_type: selectedFile.type,
+      })
+      .select();
+
+    console.log("Inserted document:", insertedDocument);
+    console.log("Database error:", dbError);
+
+    if (dbError) {
+      setMessage(dbError.message);
+      setUploading(false);
+      return;
+    }
+
+    const { error: reportError } = await supabase.from("reports").insert({
+      user_id: user.id,
+      document_id: documentId,
+      title: selectedFile.name,
+      summary:
+        "AI analysis has not been generated yet. This report is ready for Gemini analysis.",
+      predatory_score: 0,
+      risk_level: "Low",
+      green_flags: ["Document uploaded successfully."],
+      yellow_flags: ["AI analysis pending."],
+      red_flags: [],
+      financial_impact: {
+        base_cost: 0,
+        fees: 0,
+        penalties: 0,
+        risk_exposure: 0,
+      },
+    });
+
+    if (reportError) {
+      setMessage(reportError.message);
+      setUploading(false);
+      return;
+    }
+
+    setMessage("Document uploaded and report created successfully.");
+    setSelectedFile(null);
+    setUploading(false);
   }
 
   return (
     <section>
       <h1 className="mb-3 text-4xl font-bold">Upload Document</h1>
+
       <p className="mb-8 max-w-2xl text-slate-300">
         Upload a lease, contract, agreement, or similar document. Corpo will
-        analyze it and generate a plain-English risk report.
+        store the file and prepare it for AI analysis.
       </p>
 
       <div
-        onDragOver={(e) => {
-          e.preventDefault();
+        onDragOver={(event) => {
+          event.preventDefault();
           setIsDragging(true);
         }}
         onDragLeave={() => setIsDragging(false)}
@@ -50,7 +145,7 @@ export default function UploadPage() {
           type="file"
           className="hidden"
           accept=".pdf,.doc,.docx,.txt"
-          onChange={(e) => handleFile(e.target.files[0])}
+          onChange={(event) => handleFile(event.target.files[0])}
         />
 
         <div className="mb-4 text-5xl">📄</div>
@@ -69,11 +164,18 @@ export default function UploadPage() {
       </div>
 
       <button
-        onClick={handleAnalyze}
-        className="mt-8 rounded-xl bg-blue-600 px-6 py-3 font-semibold hover:bg-blue-500"
+        onClick={handleUpload}
+        disabled={uploading}
+        className="mt-8 rounded-xl bg-blue-600 px-6 py-3 font-semibold hover:bg-blue-500 disabled:opacity-60"
       >
-        Analyze Document
+        {uploading ? "Uploading..." : "Upload Document"}
       </button>
+
+      {message && (
+        <p className="mt-5 rounded-xl bg-slate-900 p-4 text-slate-300">
+          {message}
+        </p>
+      )}
     </section>
   );
 }

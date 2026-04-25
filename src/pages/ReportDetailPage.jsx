@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { supabase } from "../lib/supabaseClient";
 import {
   BarChart,
   Bar,
@@ -8,70 +10,104 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const financialData = [
-  { name: "Base Cost", amount: 1800 },
-  { name: "Fees", amount: 350 },
-  { name: "Penalties", amount: 700 },
-  { name: "Potential Risk", amount: 1200 },
-];
-
 export default function ReportDetailPage() {
   const { id } = useParams();
 
+  const [report, setReport] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    async function fetchReport() {
+      const { data, error } = await supabase
+        .from("reports")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) {
+        setMessage(error.message);
+      } else {
+        setReport(data);
+      }
+
+      setLoading(false);
+    }
+
+    fetchReport();
+  }, [id]);
+
+  if (loading) {
+    return <p className="text-slate-300">Loading report...</p>;
+  }
+
+  if (message) {
+    return <p className="rounded-xl bg-slate-900 p-4">{message}</p>;
+  }
+
+  const financialImpact = report.financial_impact || {};
+
+  const financialData = [
+    { name: "Base Cost", amount: financialImpact.base_cost || 0 },
+    { name: "Fees", amount: financialImpact.fees || 0 },
+    { name: "Penalties", amount: financialImpact.penalties || 0 },
+    { name: "Risk Exposure", amount: financialImpact.risk_exposure || 0 },
+  ];
+
   return (
     <section>
-      <div className="mb-8">
-        <p className="mb-2 text-sm uppercase tracking-widest text-blue-400">
-          Report ID: {id}
-        </p>
-        <h1 className="text-4xl font-bold">Document Risk Report</h1>
-      </div>
+      <p className="mb-2 text-sm uppercase tracking-widest text-blue-400">
+        Corpo Analysis
+      </p>
+
+      <h1 className="mb-2 text-4xl font-bold">{report.title}</h1>
+
+      <p className="mb-8 text-slate-400">
+        Created: {new Date(report.created_at).toLocaleString()}
+      </p>
 
       <div className="mb-8 grid gap-6 lg:grid-cols-3">
-        <ScoreCard title="Predatory Score" value="72/100" color="text-yellow-400" />
-        <ScoreCard title="Risk Level" value="Medium" color="text-yellow-400" />
-        <ScoreCard title="Estimated Extra Cost" value="$2,250" color="text-red-400" />
+        <ScoreCard
+          title="Predatory Score"
+          value={`${report.predatory_score}/100`}
+          color={getScoreColor(report.predatory_score)}
+        />
+
+        <ScoreCard
+          title="Risk Level"
+          value={report.risk_level}
+          color={getRiskColor(report.risk_level)}
+        />
+
+        <ScoreCard
+          title="Estimated Risk Exposure"
+          value={`$${financialData[3].amount}`}
+          color="text-red-400"
+        />
       </div>
 
       <div className="mb-8 rounded-3xl border border-slate-800 bg-slate-900 p-6">
         <h2 className="mb-4 text-2xl font-bold">Plain-English Summary</h2>
-        <p className="leading-8 text-slate-300">
-          This document appears to contain several standard terms, but there are
-          also clauses that may increase your financial responsibility. Pay close
-          attention to late fees, automatic renewal language, cancellation
-          limits, and penalties that may apply even after the agreement ends.
-        </p>
+        <p className="leading-8 text-slate-300">{report.summary}</p>
       </div>
 
       <div className="mb-8 grid gap-6 lg:grid-cols-3">
         <FlagColumn
           title="Green Flags"
           color="border-green-500"
-          items={[
-            "Payment schedule is clearly listed.",
-            "Contact information is provided.",
-            "Core agreement length is easy to identify.",
-          ]}
+          items={report.green_flags || []}
         />
 
         <FlagColumn
           title="Yellow Flags"
           color="border-yellow-500"
-          items={[
-            "Some fee language may be vague.",
-            "Renewal terms should be reviewed carefully.",
-            "Several obligations continue after signing.",
-          ]}
+          items={report.yellow_flags || []}
         />
 
         <FlagColumn
           title="Red Flags"
           color="border-red-500"
-          items={[
-            "High penalty fees may apply.",
-            "Cancellation terms appear restrictive.",
-            "User may be responsible for extra costs.",
-          ]}
+          items={report.red_flags || []}
         />
       </div>
 
@@ -107,13 +143,32 @@ function FlagColumn({ title, color, items }) {
     <div className={`rounded-2xl border-t-4 ${color} bg-slate-900 p-6`}>
       <h2 className="mb-4 text-xl font-bold">{title}</h2>
 
-      <ul className="space-y-3">
-        {items.map((item) => (
-          <li key={item} className="rounded-xl bg-slate-950 p-3 text-slate-300">
-            {item}
-          </li>
-        ))}
-      </ul>
+      {items.length === 0 ? (
+        <p className="text-slate-500">No items found.</p>
+      ) : (
+        <ul className="space-y-3">
+          {items.map((item, index) => (
+            <li
+              key={index}
+              className="rounded-xl bg-slate-950 p-3 text-slate-300"
+            >
+              {item}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
+}
+
+function getScoreColor(score) {
+  if (score >= 70) return "text-red-400";
+  if (score >= 40) return "text-yellow-400";
+  return "text-green-400";
+}
+
+function getRiskColor(riskLevel) {
+  if (riskLevel === "High") return "text-red-400";
+  if (riskLevel === "Medium") return "text-yellow-400";
+  return "text-green-400";
 }
