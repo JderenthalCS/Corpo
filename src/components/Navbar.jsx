@@ -40,6 +40,7 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <NavLink to="/" className="text-2xl font-bold tracking-tight">
           Corpo
+          {/* logo here  */}
         </NavLink>
 
         <div className="flex items-center gap-2">
