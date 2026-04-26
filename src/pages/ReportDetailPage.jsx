@@ -335,7 +335,7 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
                   tickFormatter={(value) => `$${value.toLocaleString()}`}
                 />
                 <Tooltip formatter={(value) => formatCurrency(value)} contentStyle={tooltipStyle}/>
-                <Legend />
+                <Legend wrapperStyle={{ bottom: -10 }} />
 
                 <Line
                   type="monotone"
