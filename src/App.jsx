@@ -8,6 +8,7 @@ import AccountPage from "./pages/AccountPage.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
 import Footer from "./components/Footer";
 import CreditsPage from "./pages/CreditsPage.jsx";
+import GlossaryPage from "./pages/GlossaryPage.jsx";
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="/account" element={<AccountPage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/credits" element={<CreditsPage />} />
+          <Route path="/glossary" element={<GlossaryPage />} />
         </Routes>
       </main>
       <Footer />

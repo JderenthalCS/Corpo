@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams,  useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+import GlossaryText from "./Glossarytooltip";
+import { FINANCE_GLOSSARY } from "../lib/financeGlossary";
 import {
   BarChart,
   Bar,
@@ -162,6 +164,9 @@ async function handleDeleteReport(event, report) {
   ];
 
   return (
+
+    
+
     <section>
       <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--accent)]">
         Corpo Analysis
@@ -242,7 +247,13 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
 
       <div className="mb-8 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
         <h2 className="mb-4 text-2xl font-bold">Plain-English Summary</h2>
-        <p className="leading-8 text-[var(--text-muted)]">{report.summary}</p>
+        <GlossaryText
+          as="p"
+          className="leading-8 text-[var(--text-muted)]"
+          text={report.summary || ""}
+          glossary={FINANCE_GLOSSARY}
+          glossaryPath="/glossary"
+        />
       </div>
 
       <div className="mb-8 grid items-start gap-6 lg:grid-cols-3">
@@ -280,9 +291,13 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
       <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
         <h2 className="mb-2 text-2xl font-bold">Financial Impact</h2>
 
-        <p className="mb-6 text-[var(--text-muted)]">
-          This shows how much the borrower pays beyond the original loan amount.
-        </p>
+        <GlossaryText
+          as="p"
+          className="mb-6 text-[var(--text-muted)]"
+          text="This shows how much the borrower pays beyond the original loan amount."
+          glossary={FINANCE_GLOSSARY}
+          glossaryPath="/glossary"
+        />
 
         <div className="mb-8 grid gap-4 md:grid-cols-3">
           <MetricCard title="Original Loan" value={formatCurrency(baseCost)} />
@@ -340,16 +355,11 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
           </div>
 
           <div className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-[var(--text-muted)]">
-            You borrowed {formatCurrency(baseCost)}, but will pay{" "}
-            <span className="font-bold text-[var(--text)]">
-              {formatCurrency(totalPaid)}
-            </span>.
-            <br />
-            That means you are paying{" "}
-            <span className="font-bold">
-              {Math.round((interestCost / baseCost) * 100)}%
-            </span>{" "}
-            of the loan amount in interest alone.
+            <GlossaryText
+              text={`You borrowed ${formatCurrency(baseCost)}, but will pay ${formatCurrency(totalPaid)}. That means you are paying ${Math.round((interestCost / baseCost) * 100)}% of the loan amount in interest alone.`}
+              glossary={FINANCE_GLOSSARY}
+              glossaryPath="/glossary"
+            />
           </div>
         </div>
 
@@ -408,7 +418,9 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
 function ScoreCard({ title, value, color }) {
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">{title}</p>
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+        <GlossaryText text={title} glossary={FINANCE_GLOSSARY} glossaryPath="/glossary" />
+      </p>
       <p className={`text-3xl font-bold ${color}`}>{value}</p>
     </div>
   );
@@ -452,7 +464,7 @@ function FlagColumn({ title, color, items, isOpen, onToggle }) {
                 <li
                   key={index}
                 >
-                  {item}
+                  <GlossaryText text={String(item)} glossary={FINANCE_GLOSSARY} glossaryPath="/glossary" />
                 </li>
               ))}
             </ul>
