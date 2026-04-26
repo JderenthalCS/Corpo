@@ -41,11 +41,6 @@ export default function Navbar() {
     return () => observer.disconnect();
   }, []);
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    navigate("/");
-  }
-
   const linkClass = ({ isActive }) =>
     isActive
       ? "rounded-xl bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--bg)] shadow-sm"
@@ -72,18 +67,11 @@ export default function Navbar() {
           <NavLink to="/account" className={linkClass}>
             Account
           </NavLink>
-          {user ? (
-            <button
-              onClick={handleLogout}
-              className="rounded-xl border border-[var(--border)]/80 px-4 py-2 text-sm font-semibold text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-[var(--text)]"
-            >
-              Log Out
-            </button>
-          ) : (
-            <NavLink to="/auth" className={linkClass}>
-              Log In
-            </NavLink>
-          )}
+          {!user && (
+  <NavLink to="/auth" className={linkClass}>
+    Log In
+  </NavLink>
+)}
         </div>
       </div>
     </nav>
