@@ -32,7 +32,7 @@ export default function ReportsPage() {
 
   return (
     <section>
-      <h1 className="mb-3 text-4xl font-bold">Previous Reports</h1>
+      <h1 className="mb-3 text-4xl font-bold">Reports</h1>
 
       <p className="mb-8 text-slate-300">
         View your uploaded documents and analysis reports.

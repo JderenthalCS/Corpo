@@ -87,34 +87,55 @@ export default function UploadPage() {
       return;
     }
 
-    const { error: reportError } = await supabase.from("reports").insert({
-      user_id: user.id,
-      document_id: documentId,
-      title: selectedFile.name,
-      summary:
-        "AI analysis has not been generated yet. This report is ready for Gemini analysis.",
-      predatory_score: 0,
-      risk_level: "Low",
-      green_flags: ["Document uploaded successfully."],
-      yellow_flags: ["AI analysis pending."],
-      red_flags: [],
-      financial_impact: {
-        base_cost: 0,
-        fees: 0,
-        penalties: 0,
-        risk_exposure: 0,
-      },
-    });
+    const { data: insertedReport, error: reportError } = await supabase
+  .from("reports")
+  .insert({
+    user_id: user.id,
+    document_id: documentId,
+    title: selectedFile.name,
+    summary: "Analyzing document...",
+    predatory_score: 0,
+    risk_level: "Low",
+    green_flags: [],
+    yellow_flags: ["AI analysis in progress."],
+    red_flags: [],
+    financial_impact: {
+      base_cost: 0,
+      fees: 0,
+      penalties: 0,
+      risk_exposure: 0,
+    },
+  })
+  .select()
+  .single();
 
-    if (reportError) {
-      setMessage(reportError.message);
-      setUploading(false);
-      return;
-    }
+if (reportError) {
+  setMessage(reportError.message);
+  setUploading(false);
+  return;
+}
 
-    setMessage("Document uploaded and report created successfully.");
-    setSelectedFile(null);
-    setUploading(false);
+setMessage("Document uploaded. Analyzing with AI...");
+
+const analyzeResponse = await fetch(
+  `http://localhost:8000/analyze/${insertedReport.id}`,
+  {
+    method: "POST",
+  }
+);
+
+if (!analyzeResponse.ok) {
+  const errorData = await analyzeResponse.json();
+  setMessage(
+    errorData.detail || "Document uploaded, but AI analysis failed."
+  );
+  setUploading(false);
+  return;
+}
+
+setMessage("Document uploaded and analyzed successfully.");
+setSelectedFile(null);
+setUploading(false);
   }
 
   return (
