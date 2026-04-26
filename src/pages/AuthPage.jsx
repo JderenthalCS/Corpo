@@ -51,17 +51,22 @@ export default function AuthPage() {
   }
 
   return (
-    <section className="mx-auto max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-8">
-      <h1 className="mb-2 text-3xl font-bold">
-        {isSignUp ? "Create Account" : "Log In"}
-      </h1>
+    <section className="mx-auto grid max-w-4xl gap-4 rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-4 md:grid-cols-[0.9fr_1.1fr] md:p-6">
+      <div className="rounded-2xl bg-[var(--surface-strong)] p-5 md:p-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--accent)]">
+          Secure Access
+        </p>
+        <h1 className="mt-2 text-3xl font-black leading-tight">
+          {isSignUp ? "Create your account" : "Welcome back"}
+        </h1>
+        <p className="mt-3 text-sm text-[var(--text-muted)]">
+          {isSignUp
+            ? "Create your Corpo account to save reports and monitor risk over time."
+            : "Log in to upload documents and review financial impact instantly."}
+        </p>
+      </div>
 
-      <p className="mb-6 text-slate-400">
-        {isSignUp
-          ? "Create your Corpo account to save reports."
-          : "Log in to upload and analyze documents."}
-      </p>
-
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-5 md:p-6">
       <form onSubmit={handleSubmit} className="space-y-4">
         {isSignUp && (
           <input
@@ -69,7 +74,7 @@ export default function AuthPage() {
             placeholder="Full name"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-[var(--text)] outline-none focus:border-[var(--accent)]"
           />
         )}
 
@@ -79,7 +84,7 @@ export default function AuthPage() {
           value={email}
           required
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
+          className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-[var(--text)] outline-none focus:border-[var(--accent)]"
         />
 
         <input
@@ -89,20 +94,20 @@ export default function AuthPage() {
           required
           minLength={6}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-blue-500"
+          className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-[var(--text)] outline-none focus:border-[var(--accent)]"
         />
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-blue-600 px-4 py-3 font-semibold hover:bg-blue-500 disabled:opacity-60"
+          className="w-full rounded-lg bg-[var(--accent)] px-4 py-3 font-semibold text-[var(--bg)] hover:bg-[var(--accent-hover)] disabled:opacity-60"
         >
           {loading ? "Loading..." : isSignUp ? "Sign Up" : "Log In"}
         </button>
       </form>
 
       {message && (
-        <p className="mt-4 rounded-xl bg-slate-950 p-3 text-sm text-slate-300">
+        <p className="mt-4 rounded-lg bg-[var(--surface)] p-3 text-sm text-[var(--text-muted)]">
           {message}
         </p>
       )}
@@ -112,12 +117,13 @@ export default function AuthPage() {
           setIsSignUp(!isSignUp);
           setMessage("");
         }}
-        className="mt-6 text-sm text-blue-400 hover:text-blue-300"
+        className="mt-6 text-sm text-[var(--accent)] hover:text-[var(--accent-hover)]"
       >
         {isSignUp
           ? "Already have an account? Log in"
           : "Need an account? Sign up"}
       </button>
+      </div>
     </section>
   );
 }
