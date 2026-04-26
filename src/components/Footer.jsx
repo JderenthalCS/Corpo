@@ -17,6 +17,7 @@ export default function Footer() {
             <Link to="/reports" className="hover:text-[var(--text)]">Reports</Link>
             <Link to="/account" className="hover:text-[var(--text)]">Account</Link>
             <Link to="/credits" className="hover:text-[var(--text)]">Credits</Link>
+            <Link to="/glossary" className="hover:text-[var(--text)]">Glossary</Link>
           </div>
           <p className="text-sm text-[var(--text-muted)]">© 2026 Corpo. All rights reserved.</p>
         </div>
