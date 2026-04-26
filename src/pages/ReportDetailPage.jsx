@@ -26,7 +26,7 @@ export default function ReportDetailPage() {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-  const [openFlag, setOpenFlag] = useState(null);
+  const [openFlag, setOpenFlag] = useState("red");
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleInput, setTitleInput] = useState("");
 
@@ -107,9 +107,9 @@ async function handleDeleteReport(event, report) {
   const financialImpact = report.financial_impact || {};
 
 
-  const baseCost = Number(financialImpact.base_cost || 18500);
-  const monthlyPayment = Number(financialImpact.monthly_payment || 485);
-  const termMonths = Number(financialImpact.term_months || 84);
+  const baseCost = Number(financialImpact.base_cost || 0);
+  const monthlyPayment = Number(financialImpact.monthly_payment || 0);
+  const termMonths = Number(financialImpact.term_months || 0);
 
 
   const totalPaid = Number(
@@ -122,7 +122,7 @@ async function handleDeleteReport(event, report) {
   );
 
 
-  const fees = Number(financialImpact.fees || 1450);
+  const fees = Number(financialImpact.fees || 0);
   const penalties = Number(financialImpact.penalties || 0);
   const totalYears = termMonths / 12;
 
@@ -246,7 +246,7 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
       </div>
 
       <div className="mb-8 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
-        <h2 className="mb-4 text-2xl font-bold">Plain-English Summary</h2>
+        <h2 className="mb-4 text-2xl font-bold">Summary</h2>
         <GlossaryText
           as="p"
           className="leading-8 text-[var(--text-muted)]"
