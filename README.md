@@ -67,15 +67,40 @@ OPENAI_API_KEY=your_openai_api_key
 ```
 
 ## Project Structure
+
+```
 corpo/
+├── public/
 ├── src/
-│   ├── components/       # Navbar, Footer
-│   ├── img/              # Logo assets
-│   ├── lib/              # Supabase client, theme utility
-│   └── pages/            # Landing, Upload, Reports, Account, Auth
+│   ├── components/
+│   │   ├── Navbar.jsx
+│   │   └── Footer.jsx
+│   ├── img/
+│   │   ├── logoBlack.png
+│   │   ├── logoWhite.png
+│   │   └── logoAccent.png
+│   ├── lib/
+│   │   ├── supabaseClient.js
+│   │   └── theme.js
+│   ├── pages/
+│   │   ├── LandingPage.jsx
+│   │   ├── UploadPage.jsx
+│   │   ├── ReportsPage.jsx
+│   │   ├── ReportDetailPage.jsx
+│   │   ├── AccountPage.jsx
+│   │   └── AuthPage.jsx
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── index.css
 ├── backend/
-│   └── main.py           # FastAPI app + analysis endpoint
+│   ├── main.py
+│   └── requirements.txt
+├── .env
+├── index.html
+├── vite.config.js
+├── tailwind.config.js
 └── README.md
+```
 
 ## Environment Variables
 
