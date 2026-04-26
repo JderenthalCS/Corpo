@@ -54,7 +54,7 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-40 border-b border-[var(--border)]/70 bg-[var(--bg)]/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 md:px-8">
-        <NavLink to="/" className="flex items-center gap-3 text-2xl font-black tracking-tight">
+        <NavLink to="/" className="flex items-center gap-3 text-2xl font-semibold tracking-wide">
           <img
             src={isDark ? logoLight : logoDark}
             alt="Corpo"
