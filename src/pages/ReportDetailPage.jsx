@@ -334,7 +334,11 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
                   width={84}
                   tickFormatter={(value) => `$${value.toLocaleString()}`}
                 />
-                <Tooltip formatter={(value) => formatCurrency(value)} contentStyle={tooltipStyle}/>
+                <Tooltip
+                  formatter={(value) => formatCurrency(value)}
+                  labelFormatter={(value) => `Year ${Number(value || 0).toFixed(2)}`}
+                  contentStyle={tooltipStyle}
+                />
                 <Legend wrapperStyle={{ bottom: -10 }} />
 
                 <Line
@@ -359,11 +363,37 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
           </div>
 
           <div className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-[var(--text-muted)]">
-            <GlossaryText
-              text={`You borrowed ${formatCurrency(baseCost)}, but will pay ${formatCurrency(totalPaid)}. That means you are paying ${Math.round((interestCost / baseCost) * 100)}% of the loan amount in interest alone.`}
-              glossary={FINANCE_GLOSSARY}
-              glossaryPath="/glossary"
-            />
+            <p>
+              <GlossaryText
+                as="span"
+                text="You borrowed "
+                glossary={FINANCE_GLOSSARY}
+                glossaryPath="/glossary"
+              />
+              <span className="font-bold text-[var(--text)]">{formatCurrency(baseCost)}</span>
+              <GlossaryText
+                as="span"
+                text=", but will pay "
+                glossary={FINANCE_GLOSSARY}
+                glossaryPath="/glossary"
+              />
+              <span className="font-bold text-[var(--text)]">{formatCurrency(totalPaid)}</span>
+              <GlossaryText
+                as="span"
+                text=". That means you are paying "
+                glossary={FINANCE_GLOSSARY}
+                glossaryPath="/glossary"
+              />
+              <span className="font-bold text-red-400">
+                {Math.round((interestCost / Math.max(baseCost, 1)) * 100)}%
+              </span>
+              <GlossaryText
+                as="span"
+                text=" of the loan amount in interest alone."
+                glossary={FINANCE_GLOSSARY}
+                glossaryPath="/glossary"
+              />
+            </p>
           </div>
         </div>
 
