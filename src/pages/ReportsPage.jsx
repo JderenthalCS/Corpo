@@ -42,8 +42,6 @@ export default function ReportsPage() {
         Report Library
       </p>
 
-      <h1 className="mb-3 text-4xl font-black">Reports</h1>
-
       <p className="mb-8 text-sm text-[var(--text-muted)]">
         View your uploaded documents and analysis reports.
       </p>
