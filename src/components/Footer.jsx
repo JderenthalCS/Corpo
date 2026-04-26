@@ -3,8 +3,8 @@ import logoAccent from "../img/logoAccent.png";
 
 export default function Footer() {
   return (
-    <footer className="mt-10 border-t border-[var(--border)] bg-[var(--surface)]">
-      <div className="mx-auto max-w-7xl px-5 py-8 md:px-8">
+    <footer className="mt-0 border-t border-[var(--border)] bg-[var(--surface)]">
+      <div className="mx-auto max-w-7xl px-5 py-4 md:px-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
           <Link to="/" className="flex items-center gap-3 text-2xl font-black tracking-tight">

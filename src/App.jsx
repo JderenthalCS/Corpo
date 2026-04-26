@@ -11,7 +11,7 @@ import CreditsPage from "./pages/CreditsPage.jsx";
 
 export default function App() {
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[var(--bg)] text-[var(--text)]">
+    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-[var(--bg)] text-[var(--text)]">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10"
@@ -22,7 +22,7 @@ export default function App() {
       />
       <Navbar />
 
-      <main className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-10 flex flex-col flex-1">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-8 md:px-8 md:py-10">
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/upload" element={<UploadPage />} />
