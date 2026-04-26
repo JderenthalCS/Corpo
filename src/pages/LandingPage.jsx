@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import logoAccent from "../img/logoAccent.png";
-import { useEffect, useState } from "react";
 
 function Landing() {
 
