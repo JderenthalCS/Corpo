@@ -23,7 +23,7 @@ Upload any lease, loan, or contract and Corpo will:
 **Backend**
 - Supabase (database, auth, storage)
 - FastAPI (Python)
-- OpenAI (AI document analysis)
+- Gemini (AI document analysis)
 
 ## Getting Started
 
@@ -32,7 +32,7 @@ Upload any lease, loan, or contract and Corpo will:
 - Node.js 18+
 - Python 3.10+
 - A Supabase project
-- An OpenAI API key
+- An Gemini API key
 
 ### Frontend Setup
 
