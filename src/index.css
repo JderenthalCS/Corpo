@@ -64,3 +64,18 @@ body {
   background: var(--bg);
   color: var(--text);
 }
+
+.input-style {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text);
+  outline: none;
+}
+
+.input-style:focus {
+  border-color: var(--accent);
+}
