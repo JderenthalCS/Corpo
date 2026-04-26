@@ -310,7 +310,10 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
 
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={paymentTimelineData}>
+              <LineChart
+                data={paymentTimelineData}
+                margin={{ top: 10, right: 20, left: 24, bottom: 10 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                 <XAxis
                   type="number"
@@ -328,6 +331,7 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
                 />
                 <YAxis
                   stroke="#94a3b8"
+                  width={84}
                   tickFormatter={(value) => `$${value.toLocaleString()}`}
                 />
                 <Tooltip formatter={(value) => formatCurrency(value)} contentStyle={tooltipStyle}/>
@@ -370,10 +374,14 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
 
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={costBreakdownData}>
+                <BarChart
+                  data={costBreakdownData}
+                  margin={{ top: 10, right: 20, left: 24, bottom: 10 }}
+                >
                   <XAxis dataKey="name" stroke="#94a3b8" />
                   <YAxis
                     stroke="#94a3b8"
+                    width={84}
                     tickFormatter={(value) => `$${value.toLocaleString()}`}
                   />
                   <Tooltip formatter={(value) => formatCurrency(value)} contentStyle={tooltipStyle}/>
