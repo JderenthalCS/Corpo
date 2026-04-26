@@ -1,5 +1,7 @@
 import { useRef, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { useNavigate } from "react-router-dom";
+
 
 export default function UploadPage() {
   const fileInputRef = useRef(null);
@@ -8,6 +10,8 @@ export default function UploadPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
+
+  const navigate = useNavigate();
 
   function handleFile(file) {
     if (!file) return;
@@ -136,6 +140,7 @@ if (!analyzeResponse.ok) {
 setMessage("Document uploaded and analyzed successfully.");
 setSelectedFile(null);
 setUploading(false);
+navigate("/reports");
   }
 
   return (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams,  useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import {
   BarChart,
@@ -16,14 +16,17 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import { Trash2 } from "lucide-react";
 
 export default function ReportDetailPage() {
   const { id } = useParams();
-
+  const navigate = useNavigate();
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [openFlag, setOpenFlag] = useState(null);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleInput, setTitleInput] = useState("");
 
   useEffect(() => {
     async function fetchReport() {
@@ -44,6 +47,52 @@ export default function ReportDetailPage() {
 
     fetchReport();
   }, [id]);
+
+  async function handleSaveTitle() {
+  if (!titleInput.trim()) {
+    setMessage("Report title cannot be empty.");
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("reports")
+    .update({ title: titleInput.trim() })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    setMessage(error.message);
+    return;
+  }
+
+  setReport(data);
+  setEditingTitle(false);
+}
+
+async function handleDeleteReport(event, report) {
+  event.preventDefault();
+
+  const confirmDelete = window.confirm(
+    `Delete "${report.title}"? This cannot be undone.`
+  );
+
+  if (!confirmDelete) return;
+
+  const { error } = await supabase
+    .from("reports")
+    .delete()
+    .eq("id", report.id);
+
+  if (error) {
+    setMessage(error.message);
+    return;
+  }
+
+  setTimeout(() => {
+  navigate("/reports");
+}, 200);
+}
 
   if (loading) {
     return <p className="text-[var(--text-muted)]">Loading report...</p>;
@@ -118,8 +167,55 @@ export default function ReportDetailPage() {
         Corpo Analysis
       </p>
 
-      <h1 className="mb-2 text-4xl font-black">{report.title}</h1>
+{editingTitle ? (
+  <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+    <input
+      value={titleInput}
+      onChange={(event) => setTitleInput(event.target.value)}
+      className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-xl font-bold text-[var(--text)] outline-none focus:border-[var(--accent)]"
+    />
 
+    <button
+      onClick={handleSaveTitle}
+      className="rounded-xl bg-[var(--accent)] px-5 py-3 font-semibold text-[var(--bg)] hover:bg-[var(--accent-hover)]"
+    >
+      Save
+    </button>
+
+    <button
+      onClick={() => setEditingTitle(false)}
+      className="rounded-xl border border-[var(--border)] px-5 py-3 font-semibold text-[var(--text-muted)] hover:bg-[var(--surface)]"
+    >
+      Cancel
+    </button>
+  </div>
+) : (
+  <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <h1 className="text-4xl font-black">{report.title}</h1>
+
+  <div className="flex items-center gap-3">
+
+    {/* Rename */}
+    <button
+      onClick={() => {
+        setTitleInput(report.title);
+        setEditingTitle(true);
+      }}
+      className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-[var(--text)]"
+    >
+      Rename Report
+    </button>
+
+    {/* Delete */}
+    <button
+      onClick={(event) => handleDeleteReport(event, report)}
+className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:text-red-400 transition duration-150"    >
+      <Trash2 size={18} />
+    </button>
+
+  </div>
+</div>
+)}
       <p className="mb-8 text-sm text-[var(--text-muted)]">
         Created: {new Date(report.created_at).toLocaleString()}
       </p>
