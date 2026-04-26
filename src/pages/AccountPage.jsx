@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { applyTheme } from "../theme";
+import { applyTheme, initTheme } from "../theme";
+
+initTheme();
 
 export default function AccountPage() {
   const [user, setUser] = useState(null);
