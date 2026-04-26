@@ -140,13 +140,17 @@ setUploading(false);
 
   return (
     <section>
-      <h1 className="mb-3 text-4xl font-bold">Upload Document</h1>
+      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--accent)]">
+        Workspace Intake
+      </p>
+      <h1 className="mb-3 text-4xl font-black">Upload Document</h1>
 
-      <p className="mb-8 max-w-2xl text-slate-300">
+      <p className="mb-8 max-w-2xl text-sm text-[var(--text-muted)]">
         Upload a lease, contract, agreement, or similar document. Corpo will
         store the file and prepare it for AI analysis.
       </p>
 
+      <div className="grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
       <div
         onDragOver={(event) => {
           event.preventDefault();
@@ -155,10 +159,10 @@ setUploading(false);
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current.click()}
-        className={`flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed p-16 text-center transition ${
+        className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center transition lg:p-20 ${
           isDragging
-            ? "border-blue-400 bg-blue-950/40"
-            : "border-slate-700 bg-slate-900 hover:border-blue-500"
+            ? "border-[var(--accent)] bg-[var(--surface)]"
+            : "border-[var(--border)] bg-[var(--surface)] hover:border-[var(--accent-hover)]"
         }`}
       >
         <input
@@ -171,29 +175,39 @@ setUploading(false);
 
         <div className="mb-4 text-5xl">📄</div>
 
-        <h2 className="mb-2 text-2xl font-bold">
+        <h2 className="mb-2 text-2xl font-bold ">
           Drag and drop your file here
         </h2>
 
-        <p className="text-slate-400">or click to browse</p>
+        <p className="text-[var(--text-muted)]">or click to browse</p>
 
         {selectedFile && (
-          <div className="mt-6 rounded-xl bg-slate-950 px-5 py-3 text-blue-300">
+          <div className="mt-6 rounded-xl bg-[var(--surface-strong)] px-5 py-3 text-[var(--accent)]">
             Selected: {selectedFile.name}
           </div>
         )}
       </div>
 
+      <aside className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5">
+        <h2 className="text-lg font-bold">Before You Upload</h2>
+        <ul className="mt-3 space-y-2 text-sm text-[var(--text-muted)]">
+          <li>- PDF, DOC, DOCX, and TXT supported</li>
+          <li>- Keep filenames short and clear</li>
+          <li>- Analysis begins right after upload</li>
+        </ul>
+      </aside>
+      </div>
+
       <button
         onClick={handleUpload}
         disabled={uploading}
-        className="mt-8 rounded-xl bg-blue-600 px-6 py-3 font-semibold hover:bg-blue-500 disabled:opacity-60"
+        className="mt-8 rounded-xl bg-[var(--accent)] px-6 py-3 font-semibold text-[var(--bg)] hover:bg-[var(--accent-hover)] disabled:opacity-60"
       >
         {uploading ? "Uploading..." : "Upload Document"}
       </button>
 
       {message && (
-        <p className="mt-5 rounded-xl bg-slate-900 p-4 text-slate-300">
+        <p className="mt-5 rounded-xl bg-[var(--surface)] p-4 text-[var(--text-muted)]">
           {message}
         </p>
       )}
