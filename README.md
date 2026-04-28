@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="src/img/logoAccent.png" alt="Corpo Logo" width="200"/>
+</div>
+
 # Corpo
 
 A contract clarity platform that turns dense legal agreements into plain-English summaries, risk flags, and visual cost breakdowns.
@@ -32,9 +36,35 @@ Upload any lease, loan, or contract and Corpo will:
 - Node.js 18+
 - Python 3.10+
 - A Supabase project
-- An Gemini API key
+- A Gemini API key
 
-### Frontend Setup
+### Quick Start (Automated Setup)
+
+**On macOS/Linux:**
+```bash
+./setup.sh
+./start.sh
+```
+
+**On Windows:**
+```bash
+setup.cmd
+start.cmd
+```
+
+The `setup.sh`/`setup.cmd` script will:
+- Create `.env` files with placeholders for environment variables
+- Set up a Python virtual environment in `backend/venv`
+- Install all backend dependencies
+
+The `start.sh`/`start.cmd` script will:
+- Activate the Python virtual environment
+- Start the FastAPI backend server on `http://localhost:8000`
+- Install frontend dependencies and start the Vite dev server on `http://localhost:5173`
+
+**Note:** After running setup, edit the `.env` files to add your actual API keys.
+
+### Manual Setup
 
 ```bash
 git clone https://github.com/JderenthalCS/Corpo.git
@@ -109,7 +139,7 @@ corpo/
 | `VITE_SUPABASE_URL` | Your Supabase project URL |
 | `VITE_SUPABASE_ANON_KEY` | Your Supabase anon public key |
 | `SUPABASE_SERVICE_KEY` | Your Supabase service role key (backend only) |
-| `OPENAI_API_KEY` | Your OpenAI API key |
+| `GEMINI_API_KEY` | Your Gemini API key |
 
 ## Features
 
@@ -118,6 +148,10 @@ corpo/
 - **Report Archive** — Stores and indexes every analysis
 - **Theme Support** — Dark, light, and system theme modes
 - **Drag and Drop** — Simple file upload experience
+
+## Credits
+
+Built by the Corpo team. Special thanks to all contributors who have helped make contract analysis more accessible and transparent.
 
 ## License
 
