@@ -29,8 +29,22 @@ export default function CreditsPage() {
         </CreditGroup>
 
         <CreditGroup title="Team">
-          <CreditItem name="Ryan Cuccurullo" description="Frontend" />
-          <CreditItem name="Justin Derenthal" description="Backend" />
+          <CreditItem
+            name="Ryan Cuccurullo"
+            description="Frontend"
+            icons={[
+              { icon: "/src/img/githubLogo.svg", url: "https://github.com/ryguy0601", alt: "GitHub" },
+              { icon: "/src/img/LinkedInLogo.svg", url: "https://www.linkedin.com/in/ryan-cuccurullo-48b242261/", alt: "LinkedIn" },
+            ]}
+          />
+          <CreditItem
+            name="Justin Derenthal"
+            description="Backend"
+            icons={[
+              { icon: "/src/img/githubLogo.svg", url: "https://github.com/JderenthalCS", alt: "GitHub" },
+              { icon: "/src/img/LinkedInLogo.svg", url: "https://www.linkedin.com/in/jderenthalcs/", alt: "LinkedIn" },
+            ]}
+          />
         </CreditGroup>
       </div>
     </section>
@@ -46,7 +60,34 @@ function CreditGroup({ title, children }) {
   );
 }
 
-function CreditItem({ name, description, url }) {
+function CreditItem({ name, description, url, icon, icons, iconAlt = `${name} icon` }) {
+  // `icons` can be an array of either strings (src) or objects { icon, url, alt }
+  const hasIconsArray = Array.isArray(icons) && icons.length > 0;
+  const singleIcon = icon && url;
+  let iconNodes = null;
+  if (hasIconsArray) {
+    iconNodes = [];
+    for (let i = 0; i < icons.length; i++) {
+      const it = icons[i];
+      const src = typeof it === "string" ? it : it.icon || it.src;
+      const link = typeof it === "string" ? url : it.url || url;
+      const alt = (typeof it === "string" ? iconAlt : it.alt || iconAlt) + (i > 0 ? ` ${i + 1}` : "");
+
+      iconNodes.push(
+        <a
+          key={i}
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex h-6 w-6 items-center justify-center overflow-hidden rounded-lg border border-[var(--border)] p-0.5 transition hover:border-[var(--accent)]"
+          aria-label={`${name} website ${i + 1}`}
+        >
+          <img src={src} alt={alt} className="h-4 w-4 object-cover block" />
+        </a>
+      );
+    }
+  }
+
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface-strong)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
@@ -54,7 +95,19 @@ function CreditItem({ name, description, url }) {
         <p className="text-sm text-[var(--text-muted)]">{description}</p>
       </div>
 
-      {url && (
+      {hasIconsArray ? (
+        <div className="flex flex-row items-center gap-2">{iconNodes}</div>
+      ) : singleIcon ? (
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex h-6 w-6 items-center justify-center overflow-hidden rounded-lg border border-[var(--border)] p-0.5 transition hover:border-[var(--accent)]"
+          aria-label={`${name} website`}
+        >
+          <img src={icon} alt={iconAlt} className="h-4 w-4 object-cover block" />
+        </a>
+      ) : url ? (
         <a
           href={url}
           target="_blank"
@@ -63,7 +116,7 @@ function CreditItem({ name, description, url }) {
         >
           Visit ↗
         </a>
-      )}
+      ) : null}
     </div>
   );
 }
