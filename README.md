@@ -31,7 +31,6 @@
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [How it Works](#how-it-works)
-- [Installation](#installation)
 - [Project Structure](#project-structure)
 - [Contributors](#contributors)
 - [Acknowledgments](#acknowledgments)
@@ -92,37 +91,6 @@ Corpo analyzes leases, loans, and agreements and converts them into:
 
 ---
 
-## Installation
-
-### Prerequisites
-- Node.js 18+  
-- Python 3.10+  
-- Supabase project  
-- Gemini API key  
-
----
-
-### Quick Start
-
-```bash
-git clone https://github.com/JderenthalCS/Corpo.git
-cd corpo
-npm install
-npm run dev
-```
-
----
-
-## Backend
-
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
-
----
-
 ## Project Structure
 
 ```bash
@@ -130,7 +98,6 @@ corpo/
 ├── src/
 ├── backend/
 ├── public/
-├── .env
 ├── vite.config.js
 └── README.md
 ```
@@ -144,5 +111,5 @@ corpo/
 ---
 
 ## Acknowledgments
-Logo designed & UI insight by [Dylan Berkowitz](https://www.linkedin.com/in/dylan-berkowitz-862958334/)
+Logo design & UI insight by [Dylan Berkowitz](https://www.linkedin.com/in/dylan-berkowitz-862958334/)
 
