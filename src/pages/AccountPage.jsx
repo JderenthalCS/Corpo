@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { applyTheme, initTheme } from "../theme";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { LogOut, User, Shield, Bell, Lock, Palette } from "lucide-react";
 
 initTheme();
@@ -15,6 +15,7 @@ export default function AccountPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [pwStrength, setPwStrength] = useState({
     pct: 0,
     color: "#ef4444",
@@ -24,26 +25,36 @@ export default function AccountPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function loadUser() {
-      const { data, error } = await supabase.auth.getUser();
+  async function loadUser() {
+    const { data, error } = await supabase.auth.getUser();
 
-      if (error) {
-        setMessage(error.message);
-        return;
-      }
-
-      const currentUser = data.user;
-      const savedTheme = currentUser.user_metadata?.theme_preference || "System";
-
-      setUser(currentUser);
-      setFullName(currentUser.user_metadata?.full_name || "");
-      setThemePreference(savedTheme);
-      setEmailReports(currentUser.user_metadata?.email_reports ?? true);
-      applyTheme(savedTheme);
+    if (error) {
+      setMessage(error.message);
+      setLoading(false);
+      return;
     }
 
-    loadUser();
-  }, []);
+    const currentUser = data.user;
+
+    if (!currentUser) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
+    const savedTheme = currentUser.user_metadata?.theme_preference || "System";
+
+    setUser(currentUser);
+    setFullName(currentUser.user_metadata?.full_name || "");
+    setThemePreference(savedTheme);
+    setEmailReports(currentUser.user_metadata?.email_reports ?? true);
+    applyTheme(savedTheme);
+
+    setLoading(false);
+  }
+
+  loadUser();
+}, []);
 
   function getInitials(name) {
     const parts = name.trim().split(" ");
@@ -137,13 +148,31 @@ export default function AccountPage() {
     navigate("/");
   }
 
-  if (!user) {
-    return (
-      <p className="px-4 py-6 text-sm text-[var(--text-muted)] sm:px-6 md:px-8">
-        Loading account...
+  if (loading) {
+  return (
+    <p className="px-4 py-6 text-sm text-[var(--text-muted)]">
+      Loading account...
+    </p>
+  );
+}
+
+if (!user) {
+  return (
+    <div className="px-4 py-10 text-center">
+      <h2 className="text-xl font-bold">You’re not logged in</h2>
+      <p className="mt-2 text-sm text-[var(--text-muted)]">
+        Log in to view and manage your account.
       </p>
-    );
-  }
+
+      <Link
+        to="/auth"
+        className="mt-4 inline-block rounded-xl bg-[var(--accent)] px-5 py-3 font-semibold text-[var(--bg)] hover:bg-[var(--accent-hover)]"
+      >
+        Log In
+      </Link>
+    </div>
+  );
+}
 
   return (
     <section className="w-full space-y-6 px-4 py-4 sm:px-6 sm:py-6 md:px-8 lg:space-y-8">
