@@ -47,9 +47,11 @@ export default function AccountPage() {
 
   function getInitials(name) {
     const parts = name.trim().split(" ");
+
     if (parts.length >= 2) {
       return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
+
     return (parts[0]?.[0] || "?").toUpperCase();
   }
 
@@ -136,19 +138,22 @@ export default function AccountPage() {
   }
 
   if (!user) {
-    return <p className="text-[var(--text-muted)]">Loading account...</p>;
+    return (
+      <p className="px-4 py-6 text-sm text-[var(--text-muted)] sm:px-6 md:px-8">
+        Loading account...
+      </p>
+    );
   }
 
   return (
-    <section className="space-y-8">
-      <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 md:p-8">
+    <section className="w-full space-y-6 px-4 py-4 sm:px-6 sm:py-6 md:px-8 lg:space-y-8">
+      <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 md:p-8">
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">
           Personal Settings
         </p>
 
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col gap-4 sm:gap-6 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-4xl font-black md:text-5xl">Account</h1>
             <p className="mt-3 max-w-2xl text-sm text-[var(--text-muted)]">
               Manage your profile, preferences, security, and account access.
             </p>
@@ -156,7 +161,7 @@ export default function AccountPage() {
 
           <button
             onClick={handleLogout}
-            className="inline-flex w-fit items-center gap-2 rounded-xl border border-red-500/40 px-5 py-3 text-sm font-semibold text-red-400 transition hover:bg-red-500/10"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/40 px-5 py-3 text-sm font-semibold text-red-400 transition hover:bg-red-500/10 sm:w-fit"
           >
             <LogOut size={16} />
             Log out
@@ -170,17 +175,21 @@ export default function AccountPage() {
         </p>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-        <aside className="space-y-4">
-          <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6">
+      <div className="grid gap-6 lg:grid-cols-3">
+        <aside className="space-y-4 lg:col-span-1">
+          <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent)]/20 text-xl font-black text-[var(--accent)]">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent)]/20 text-lg font-black text-[var(--accent)] sm:h-16 sm:w-16 sm:text-xl">
                 {getInitials(fullName || user.email)}
               </div>
 
-              <div>
-                <p className="text-xl font-bold">{fullName || "Your Name"}</p>
-                <p className="text-sm text-[var(--text-muted)]">{user.email}</p>
+              <div className="min-w-0">
+                <p className="truncate text-lg font-bold sm:text-xl">
+                  {fullName || "Your Name"}
+                </p>
+                <p className="truncate text-sm text-[var(--text-muted)]">
+                  {user.email}
+                </p>
               </div>
             </div>
           </div>
@@ -198,26 +207,30 @@ export default function AccountPage() {
           />
         </aside>
 
-        <div className="space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           <Panel icon={<User size={18} />} title="Profile">
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <Field label="Full name">
                 <input
                   value={fullName}
                   onChange={(event) => setFullName(event.target.value)}
                   placeholder="Enter your full name"
-                  className="input-style"
+                  className="input-style w-full min-w-0"
                 />
               </Field>
 
               <Field label="Email address">
-                <input value={user.email} disabled className="input-style opacity-60" />
+                <input
+                  value={user.email}
+                  disabled
+                  className="input-style w-full min-w-0 opacity-60"
+                />
               </Field>
             </div>
           </Panel>
 
           <Panel icon={<Palette size={18} />} title="Preferences">
-            <div className="grid gap-6 sm:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2">
               <div>
                 <label className="mb-3 block text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
                   Theme
@@ -231,7 +244,7 @@ export default function AccountPage() {
                         setThemePreference(theme);
                         applyTheme(theme);
                       }}
-                      className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                      className={`rounded-xl border px-3 py-3 text-sm font-semibold transition sm:px-4 ${
                         themePreference === theme
                           ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
                           : "border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-hover)]"
@@ -243,7 +256,7 @@ export default function AccountPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-4">
+              <div className="flex flex-col gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="font-semibold">Email reports</p>
                   <p className="text-sm text-[var(--text-muted)]">
@@ -257,7 +270,7 @@ export default function AccountPage() {
           </Panel>
 
           <Panel icon={<Lock size={18} />} title="Security">
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <Field label="New password">
                 <input
                   type="password"
@@ -267,7 +280,7 @@ export default function AccountPage() {
                     checkPwStrength(event.target.value);
                   }}
                   placeholder="Enter a new password"
-                  className="input-style"
+                  className="input-style w-full min-w-0"
                 />
 
                 {newPassword && (
@@ -295,7 +308,7 @@ export default function AccountPage() {
                   value={confirmPassword}
                   onChange={(event) => setConfirmPassword(event.target.value)}
                   placeholder="Confirm new password"
-                  className="input-style"
+                  className="input-style w-full min-w-0"
                 />
               </Field>
             </div>
@@ -303,7 +316,7 @@ export default function AccountPage() {
             <button
               onClick={handlePasswordChange}
               disabled={saving}
-              className="mt-5 rounded-xl border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--text-muted)] transition hover:border-[var(--accent-hover)] hover:text-[var(--text)] disabled:opacity-50"
+              className="mt-5 w-full rounded-xl border border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--text-muted)] transition hover:border-[var(--accent-hover)] hover:text-[var(--text)] disabled:opacity-50 sm:w-auto"
             >
               {saving ? "Updating..." : "Update password"}
             </button>
@@ -313,7 +326,7 @@ export default function AccountPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="rounded-xl bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-[var(--bg)] transition hover:bg-[var(--accent-hover)] disabled:opacity-50"
+              className="w-full rounded-xl bg-[var(--accent)] px-6 py-3 text-sm font-semibold text-[var(--bg)] transition hover:bg-[var(--accent-hover)] disabled:opacity-50 sm:w-auto"
             >
               {saving ? "Saving..." : "Save settings"}
             </button>
@@ -326,12 +339,12 @@ export default function AccountPage() {
 
 function Panel({ icon, title, children }) {
   return (
-    <section className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6">
+    <section className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6">
       <div className="mb-5 flex items-center gap-3">
         <div className="rounded-xl bg-[var(--surface-strong)] p-3 text-[var(--accent)]">
           {icon}
         </div>
-        <h2 className="text-xl font-bold">{title}</h2>
+        <h2 className="text-lg font-bold sm:text-xl">{title}</h2>
       </div>
 
       {children}
@@ -341,7 +354,7 @@ function Panel({ icon, title, children }) {
 
 function Field({ label, children }) {
   return (
-    <div>
+    <div className="min-w-0">
       <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
         {label}
       </label>
@@ -352,7 +365,7 @@ function Field({ label, children }) {
 
 function InfoCard({ icon, title, text }) {
   return (
-    <article className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5">
+    <article className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6">
       <div className="mb-3 inline-flex rounded-xl bg-[var(--surface-strong)] p-3 text-[var(--accent)]">
         {icon}
       </div>
@@ -370,6 +383,7 @@ function ToggleSwitch({ checked, onChange }) {
       className={`relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200 ${
         checked ? "bg-[var(--accent)]" : "bg-[var(--border)]"
       }`}
+      aria-pressed={checked}
     >
       <span
         className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${

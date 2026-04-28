@@ -1,12 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
 @import "tailwindcss";
 
 :root,
 [data-theme="light"] {
   color-scheme: light;
-  --bg: #FDFBF7;
-  --accent: #4A7C59;
-  --accent-hover: #6BAF80;
+  --bg: #fdfbf7;
+  --accent: #4a7c59;
+  --accent-hover: #6baf80;
   --text: #1f2a22;
   --text-muted: #4b5a50;
   --surface: #f5f2eb;
@@ -16,7 +16,9 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg: #363D45;
+  --bg: #363d45;
+  --accent: #6baf80;
+  --accent-hover: #8bcf9e;
   --text: #edf2ec;
   --text-muted: #c3cec4;
   --surface: #2f353d;
@@ -27,7 +29,9 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     color-scheme: dark;
-    --bg: #363D45;
+    --bg: #363d45;
+    --accent: #6baf80;
+    --accent-hover: #8bcf9e;
     --text: #edf2ec;
     --text-muted: #c3cec4;
     --surface: #2f353d;
@@ -40,8 +44,37 @@
   box-sizing: border-box;
 }
 
-h1, h2, h3 {
-  font-weight: 600;
+html {
+  width: 100%;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  width: 100%;
+  min-width: 320px;
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 
@@ -50,23 +83,26 @@ p {
   font-size: 15px;
 }
 
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
 button {
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.01em;
 }
 
-body {
-  margin: 0;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-feature-settings: "cv11", "ss01";
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: var(--bg);
-  color: var(--text);
+input,
+textarea,
+select,
+button {
+  font: inherit;
 }
 
 .input-style {
   width: 100%;
+  min-width: 0;
   border-radius: 0.75rem;
   border: 1px solid var(--border);
   background: var(--surface-strong);
@@ -74,8 +110,15 @@ body {
   font-size: 0.875rem;
   color: var(--text);
   outline: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .input-style:focus {
   border-color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  p {
+    font-size: 14px;
+  }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 // ─── Styles (injected once) ───────────────────────────────────────────────────
@@ -7,16 +7,19 @@ const CSS = `
   display: inline-block;
   position: relative;
 }
+
 .gt-word {
   border-bottom: 2px dotted var(--color-accent, #4A7C59);
   padding-bottom: 1px;
   cursor: help;
   text-decoration: none;
 }
+
 .gt-word:focus {
   outline: 2px solid var(--color-border-secondary, rgba(0,0,0,0.35));
   outline-offset: 2px;
 }
+
 .gt-bubble {
   position: absolute;
   bottom: calc(100% + 8px);
@@ -30,22 +33,25 @@ const CSS = `
   font-weight: 400;
   font-style: normal;
   color: var(--color-text-primary, #111);
-  width: 220px;
+  width: min(220px, 90vw);
   text-align: left;
   line-height: 1.5;
   z-index: 9999;
-  pointer-events: none;
+  pointer-events: auto;
   white-space: normal;
   box-shadow: 0 2px 8px rgba(0,0,0,0.10);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.12s ease;
+  transition: opacity 0.12s ease, visibility 0.12s ease;
 }
+
 .gt-wrap:hover .gt-bubble,
-.gt-wrap:focus-within .gt-bubble {
+.gt-wrap:focus-within .gt-bubble,
+.gt-wrap.gt-open .gt-bubble {
   opacity: 1;
   visibility: visible;
 }
+
 .gt-bubble::after {
   content: '';
   position: absolute;
@@ -55,6 +61,7 @@ const CSS = `
   border: 5px solid transparent;
   border-top-color: var(--color-border-secondary, rgba(0,0,0,0.25));
 }
+
 .gt-term-label {
   display: block;
   font-weight: 500;
@@ -64,10 +71,24 @@ const CSS = `
   letter-spacing: 0.05em;
   margin-bottom: 3px;
 }
+
+@media (max-width: 640px) {
+  .gt-bubble {
+    left: 0;
+    transform: none;
+    width: min(260px, 85vw);
+  }
+
+  .gt-bubble::after {
+    left: 16px;
+    transform: none;
+  }
+}
 `;
 
 function injectStyles() {
   if (document.getElementById("gt-styles")) return;
+
   const el = document.createElement("style");
   el.id = "gt-styles";
   el.textContent = CSS;
@@ -81,13 +102,32 @@ function getTermAnchor(term) {
     .replace(/^-+|-+$/g, "");
 }
 
+function isCoarsePointer() {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(pointer: coarse)").matches;
+}
+
 // ─── GlossaryTerm ─────────────────────────────────────────────────────────────
 function GlossaryTerm({ term, definition, glossaryPath }) {
+  const [open, setOpen] = useState(false);
+
   const anchor = getTermAnchor(term);
   const to = glossaryPath ? `${glossaryPath}#${anchor}` : null;
 
+  function handleClick(event) {
+    if (!isCoarsePointer()) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    setOpen((prev) => !prev);
+  }
+
+  function handleBlur() {
+    setOpen(false);
+  }
+
   const tooltip = definition ? (
-    <span className="gt-bubble">
+    <span className="gt-bubble" role="tooltip">
       <span className="gt-term-label">{term}</span>
       {definition}
     </span>
@@ -95,15 +135,25 @@ function GlossaryTerm({ term, definition, glossaryPath }) {
 
   if (!to) {
     return (
-      <span className="gt-wrap">
-        <span className="gt-word">{term}</span>
+      <span
+        className={`gt-wrap ${open ? "gt-open" : ""}`}
+        onClick={handleClick}
+        onBlur={handleBlur}
+      >
+        <button type="button" className="gt-word">
+          {term}
+        </button>
         {tooltip}
       </span>
     );
   }
 
   return (
-    <span className="gt-wrap">
+    <span
+      className={`gt-wrap ${open ? "gt-open" : ""}`}
+      onClick={handleClick}
+      onBlur={handleBlur}
+    >
       <Link
         to={to}
         className="gt-word"
@@ -118,13 +168,15 @@ function GlossaryTerm({ term, definition, glossaryPath }) {
 }
 
 // ─── parseWithGlossary ────────────────────────────────────────────────────────
-// Converts a plain string into an array of React nodes, injecting
-// tooltip-enabled terms for every glossary match.
 function parseWithGlossary(text, glossary, glossaryPath) {
-  const terms = Object.keys(glossary).sort((a, b) => b.length - a.length);
+  const terms = Object.keys(glossary || {}).sort((a, b) => b.length - a.length);
+
   if (!terms.length) return [text];
 
-  const escaped = terms.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const escaped = terms.map((term) =>
+    term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  );
+
   const pattern = new RegExp(`\\b(${escaped.join("|")})\\b`, "gi");
 
   const nodes = [];
@@ -133,10 +185,15 @@ function parseWithGlossary(text, glossary, glossaryPath) {
   let key = 0;
 
   while ((match = pattern.exec(text)) !== null) {
-    if (match.index > last) nodes.push(text.slice(last, match.index));
+    if (match.index > last) {
+      nodes.push(text.slice(last, match.index));
+    }
 
     const raw = match[0];
-    const canonical = terms.find((t) => t.toLowerCase() === raw.toLowerCase());
+    const canonical = terms.find(
+      (term) => term.toLowerCase() === raw.toLowerCase()
+    );
+
     const def = glossary[canonical];
 
     nodes.push(
@@ -151,25 +208,26 @@ function parseWithGlossary(text, glossary, glossaryPath) {
     last = match.index + raw.length;
   }
 
-  if (last < text.length) nodes.push(text.slice(last));
+  if (last < text.length) {
+    nodes.push(text.slice(last));
+  }
+
   return nodes;
 }
 
 // ─── GlossaryText ─────────────────────────────────────────────────────────────
-/**
- * Renders `text` as a <span>, scanning for glossary terms and
- * making each matched term underlined with hover/focus tooltip behavior.
- *
- * Props:
- *   text       {string}  — the text content to scan
- *   glossary   {object}  — { "term": "definition", ... }
- *   as         {string}  — HTML tag to render (default "span")
- *   className  {string}  — forwarded to the root element
- */
-export function GlossaryText({ text, glossary, as: Tag = "span", className, ...rest }) {
+export function GlossaryText({
+  text,
+  glossary,
+  as: Tag = "span",
+  className,
+  ...rest
+}) {
   useEffect(injectStyles, []);
-  const nodes = parseWithGlossary(String(text || ""), glossary, rest.glossaryPath);
+
   const { glossaryPath, ...tagProps } = rest;
+  const nodes = parseWithGlossary(String(text || ""), glossary, glossaryPath);
+
   return (
     <Tag className={className} {...tagProps}>
       {nodes}
@@ -177,48 +235,36 @@ export function GlossaryText({ text, glossary, as: Tag = "span", className, ...r
   );
 }
 
-// ─── useGlossary hook ──────────────────────────────────────────────────────────
-/**
- * Lower-level hook. Returns a `scan(text)` function that converts a
- * string into React nodes. Use this when you need the parsed output
- * directly (e.g. inside a custom component).
- *
- * Usage:
- *   const scan = useGlossary(glossary);
- *   return <p>{scan("The mitochondria is the powerhouse of the cell.")}</p>;
- */
-export function useGlossary(glossary) {
+// ─── useGlossary hook ─────────────────────────────────────────────────────────
+export function useGlossary(glossary, glossaryPath) {
   useEffect(injectStyles, []);
+
   return useCallback(
-    (text) => parseWithGlossary(text, glossary),
-    [glossary]
+    (text) => parseWithGlossary(String(text || ""), glossary, glossaryPath),
+    [glossary, glossaryPath]
   );
 }
 
 // ─── GlossaryProvider / useGlossaryContext ────────────────────────────────────
-// Optional: wrap a subtree so any child can call useGlossaryContext()
-// without prop-drilling the glossary object.
-import { createContext, useContext } from "react";
+const GlossaryContext = createContext({ glossary: {}, glossaryPath: "" });
 
-const GlossaryContext = createContext({});
-
-export function GlossaryProvider({ glossary, children }) {
+export function GlossaryProvider({ glossary, glossaryPath = "", children }) {
   useEffect(injectStyles, []);
+
   return (
-    <GlossaryContext.Provider value={glossary}>
+    <GlossaryContext.Provider value={{ glossary, glossaryPath }}>
       {children}
     </GlossaryContext.Provider>
   );
 }
 
-/**
- * Inside a <GlossaryProvider>, call this hook to get a scan() function
- * bound to the provider's glossary.
- */
 export function useGlossaryContext() {
-  const glossary = useContext(GlossaryContext);
-  return useCallback((text) => parseWithGlossary(text, glossary), [glossary]);
+  const { glossary, glossaryPath } = useContext(GlossaryContext);
+
+  return useCallback(
+    (text) => parseWithGlossary(String(text || ""), glossary, glossaryPath),
+    [glossary, glossaryPath]
+  );
 }
 
-// ─── Default export: GlossaryText ─────────────────────────────────────────────
 export default GlossaryText;

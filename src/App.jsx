@@ -21,9 +21,10 @@ export default function App() {
             "radial-gradient(900px 420px at 8% -5%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 65%), radial-gradient(780px 360px at 95% -10%, color-mix(in srgb, var(--accent-hover) 18%, transparent), transparent 60%)",
         }}
       />
+
       <Navbar />
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-8 md:px-8 md:py-10">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10">
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/upload" element={<UploadPage />} />
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/glossary" element={<GlossaryPage />} />
         </Routes>
       </main>
+
       <Footer />
     </div>
   );

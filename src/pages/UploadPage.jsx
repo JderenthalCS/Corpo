@@ -77,15 +77,13 @@ export default function UploadPage() {
 
     setStep("Creating report...");
 
-    const { error: dbError } = await supabase
-      .from("documents")
-      .insert({
-        id: documentId,
-        user_id: user.id,
-        file_name: selectedFile.name,
-        file_path: filePath,
-        file_type: selectedFile.type,
-      });
+    const { error: dbError } = await supabase.from("documents").insert({
+      id: documentId,
+      user_id: user.id,
+      file_name: selectedFile.name,
+      file_path: filePath,
+      file_type: selectedFile.type,
+    });
 
     if (dbError) {
       setMessage(dbError.message);
@@ -151,21 +149,23 @@ export default function UploadPage() {
   }
 
   return (
-    <section className="space-y-8">
-      <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 md:p-8">
+    <section className="w-full space-y-8 px-4 py-6 sm:px-6 md:px-8">
+
+      {/* HERO */}
+      <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6 md:p-8">
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">
           Workspace Intake
         </p>
 
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-4xl font-black leading-tight md:text-5xl">
+            <h1 className="text-3xl font-black leading-tight sm:text-4xl md:text-5xl">
               Upload a document.
               <br />
               Get the real story.
             </h1>
 
-            <p className="mt-4 max-w-2xl text-sm text-[var(--text-muted)]">
+            <p className="mt-4 max-w-2xl text-sm sm:text-base text-[var(--text-muted)]">
               Add a lease, contract, agreement, or disclosure. Corpo will extract
               the text, analyze the risk, and build a plain-English report with
               financial insights.
@@ -179,7 +179,10 @@ export default function UploadPage() {
         </div>
       </div>
 
+      {/* MAIN GRID */}
       <div className="grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
+
+        {/* DROPZONE */}
         <div
           onDragOver={(event) => {
             event.preventDefault();
@@ -188,7 +191,7 @@ export default function UploadPage() {
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
           onClick={() => !uploading && fileInputRef.current.click()}
-          className={`relative flex min-h-[340px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed p-10 text-center transition ${
+          className={`relative flex min-h-[260px] sm:min-h-[320px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed p-6 sm:p-10 text-center transition ${
             isDragging
               ? "scale-[1.01] border-[var(--accent)] bg-[var(--surface-strong)]"
               : "border-[var(--border)] bg-[var(--surface)] hover:border-[var(--accent-hover)] hover:bg-[var(--surface-strong)]"
@@ -202,27 +205,29 @@ export default function UploadPage() {
             onChange={(event) => handleFile(event.target.files[0])}
           />
 
-          <div className="mb-5 rounded-2xl bg-[var(--bg)] p-5 text-[var(--accent)]">
+          <div className="mb-4 sm:mb-5 rounded-2xl bg-[var(--bg)] p-4 sm:p-5 text-[var(--accent)]">
             {uploading ? (
-              <Sparkles className="h-10 w-10 animate-pulse" />
+              <Sparkles className="h-8 w-8 sm:h-10 sm:w-10 animate-pulse" />
             ) : (
-              <UploadCloud className="h-10 w-10" />
+              <UploadCloud className="h-8 w-8 sm:h-10 sm:w-10" />
             )}
           </div>
 
-          <h2 className="text-2xl font-bold">
+          <h2 className="text-xl sm:text-2xl font-bold">
             {uploading ? "Working on your report..." : "Drop your file here"}
           </h2>
 
           <p className="mt-2 text-sm text-[var(--text-muted)]">
-            {uploading ? step : "or click to browse from your computer"}
+            {uploading ? step : "or click to browse"}
           </p>
 
           {selectedFile && (
-            <div className="mt-6 flex items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--bg)] px-5 py-3 text-left">
+            <div className="mt-5 flex w-full max-w-sm items-center gap-3 rounded-2xl border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-left">
               <FileText className="h-5 w-5 text-[var(--accent)]" />
-              <div>
-                <p className="font-semibold text-[var(--text)]">{selectedFile.name}</p>
+              <div className="min-w-0">
+                <p className="truncate font-semibold text-[var(--text)]">
+                  {selectedFile.name}
+                </p>
                 <p className="text-xs text-[var(--text-muted)]">
                   {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                 </p>
@@ -237,36 +242,26 @@ export default function UploadPage() {
           )}
         </div>
 
+        {/* SIDE INFO */}
         <aside className="space-y-4">
-          <InfoCard
-            icon={<ShieldCheck className="h-5 w-5" />}
-            title="Private workflow"
-            text="Reports are tied to your account and stored for later review."
-          />
-          <InfoCard
-            icon={<Sparkles className="h-5 w-5" />}
-            title="AI analysis"
-            text="Corpo checks risk flags, plain-English meaning, and financial impact."
-          />
-          <InfoCard
-            icon={<Clock className="h-5 w-5" />}
-            title="Short wait"
-            text="Analysis usually takes a moment. The report unlocks when complete."
-          />
+          <InfoCard icon={<ShieldCheck />} title="Private workflow" text="Reports are tied to your account." />
+          <InfoCard icon={<Sparkles />} title="AI analysis" text="Corpo checks risk flags and financial impact." />
+          <InfoCard icon={<Clock />} title="Short wait" text="Analysis completes in seconds." />
         </aside>
       </div>
 
+      {/* ACTION */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <button
           onClick={handleUpload}
           disabled={uploading || !selectedFile}
-          className="rounded-xl bg-[var(--accent)] px-6 py-3 font-semibold text-[var(--bg)] hover:bg-[var(--accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full sm:w-auto rounded-xl bg-[var(--accent)] px-6 py-3 font-semibold text-[var(--bg)] transition hover:bg-[var(--accent-hover)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {uploading ? "Analyzing..." : "Analyze Document"}
         </button>
 
         {message && (
-          <p className="rounded-xl bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text-muted)]">
+          <p className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text-muted)]">
             {message}
           </p>
         )}

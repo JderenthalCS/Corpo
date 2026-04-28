@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams,  useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import GlossaryText from "./Glossarytooltip";
 import { FINANCE_GLOSSARY } from "../lib/financeGlossary";
@@ -29,7 +29,16 @@ export default function ReportDetailPage() {
   const [openFlag, setOpenFlag] = useState("red");
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleInput, setTitleInput] = useState("");
+const [showPieLabels, setShowPieLabels] = useState(window.innerWidth >= 640);
 
+useEffect(() => {
+  function handleResize() {
+    setShowPieLabels(window.innerWidth >= 640);
+  }
+
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
   useEffect(() => {
     async function fetchReport() {
       const { data, error } = await supabase
@@ -51,81 +60,81 @@ export default function ReportDetailPage() {
   }, [id]);
 
   async function handleSaveTitle() {
-  if (!titleInput.trim()) {
-    setMessage("Report title cannot be empty.");
-    return;
+    if (!titleInput.trim()) {
+      setMessage("Report title cannot be empty.");
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("reports")
+      .update({ title: titleInput.trim() })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setReport(data);
+    setEditingTitle(false);
   }
 
-  const { data, error } = await supabase
-    .from("reports")
-    .update({ title: titleInput.trim() })
-    .eq("id", id)
-    .select()
-    .single();
+  async function handleDeleteReport(event, report) {
+    event.preventDefault();
 
-  if (error) {
-    setMessage(error.message);
-    return;
+    const confirmDelete = window.confirm(
+      `Delete "${report.title}"? This cannot be undone.`
+    );
+
+    if (!confirmDelete) return;
+
+    const { error } = await supabase.from("reports").delete().eq("id", report.id);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setTimeout(() => {
+      navigate("/reports");
+    }, 200);
   }
-
-  setReport(data);
-  setEditingTitle(false);
-}
-
-async function handleDeleteReport(event, report) {
-  event.preventDefault();
-
-  const confirmDelete = window.confirm(
-    `Delete "${report.title}"? This cannot be undone.`
-  );
-
-  if (!confirmDelete) return;
-
-  const { error } = await supabase
-    .from("reports")
-    .delete()
-    .eq("id", report.id);
-
-  if (error) {
-    setMessage(error.message);
-    return;
-  }
-
-  setTimeout(() => {
-  navigate("/reports");
-}, 200);
-}
 
   if (loading) {
-    return <p className="text-[var(--text-muted)]">Loading report...</p>;
+    return (
+      <p className="px-4 py-6 text-sm text-[var(--text-muted)] sm:px-6 md:px-8">
+        Loading report...
+      </p>
+    );
   }
 
   if (message) {
-    return <p className="rounded-xl bg-[var(--surface)] p-4">{message}</p>;
+    return (
+      <p className="mx-4 rounded-xl bg-[var(--surface)] p-4 text-sm text-[var(--text-muted)] sm:mx-6 md:mx-8">
+        {message}
+      </p>
+    );
   }
 
   const financialImpact = report.financial_impact || {};
-
 
   const baseCost = Number(financialImpact.base_cost || 0);
   const monthlyPayment = Number(financialImpact.monthly_payment || 0);
   const termMonths = Number(financialImpact.term_months || 0);
 
-
   const totalPaid = Number(
     financialImpact.total_paid || monthlyPayment * termMonths
   );
-
 
   const interestCost = Number(
     financialImpact.total_interest || Math.max(totalPaid - baseCost, 0)
   );
 
-
   const fees = Number(financialImpact.fees || 0);
   const penalties = Number(financialImpact.penalties || 0);
   const totalYears = termMonths / 12;
-
 
   const costBreakdownData = [
     { name: "Original Loan", amount: baseCost, color: "#22c55e" },
@@ -141,91 +150,96 @@ async function handleDeleteReport(event, report) {
     color: "var(--text)",
   };
 
+  const safeTermMonths = Math.max(termMonths, 1);
+  const safeTotalYears = Math.max(totalYears, 1 / 12);
 
-  const paymentTimelineData = Array.from({ length: termMonths + 1 }, (_, month) => {
-    const progress = month / termMonths;
+  const paymentTimelineData = Array.from(
+    { length: safeTermMonths + 1 },
+    (_, month) => {
+      const progress = month / safeTermMonths;
+      const interestCurve = Math.pow(progress, 1.4);
+      const cumulativeInterest = interestCost * interestCurve;
+      const cumulativeTotal = baseCost * progress + cumulativeInterest;
 
-    const interestCurve = Math.pow(progress, 1.4);
-    const cumulativeInterest = interestCost * interestCurve;
-
-    const cumulativeTotal = baseCost * progress + cumulativeInterest;
-
-    return {
-      month,
-      year: month / 12,
-      originalLoan: baseCost,
-      totalPaid: Math.round(cumulativeTotal),
-    };
-  });
+      return {
+        month,
+        year: month / 12,
+        originalLoan: baseCost,
+        totalPaid: Math.round(cumulativeTotal),
+      };
+    }
+  );
 
   const yearTicks = [
-    ...Array.from({ length: Math.floor(totalYears) + 1 }, (_, index) => index),
-    ...(Number.isInteger(totalYears) ? [] : [Number(totalYears.toFixed(1))]),
+    ...Array.from(
+      { length: Math.floor(safeTotalYears) + 1 },
+      (_, index) => index
+    ),
+    ...(Number.isInteger(safeTotalYears)
+      ? []
+      : [Number(safeTotalYears.toFixed(1))]),
   ];
 
   return (
-
-    
-
-    <section>
+    <section className="w-full px-4 py-6 sm:px-6 md:px-8">
       <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--accent)]">
         Corpo Analysis
       </p>
 
-{editingTitle ? (
-  <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-    <input
-      value={titleInput}
-      onChange={(event) => setTitleInput(event.target.value)}
-      className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-xl font-bold text-[var(--text)] outline-none focus:border-[var(--accent)]"
-    />
+      {editingTitle ? (
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <input
+            value={titleInput}
+            onChange={(event) => setTitleInput(event.target.value)}
+            className="w-full min-w-0 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-lg font-bold text-[var(--text)] outline-none transition focus:border-[var(--accent)] sm:text-xl"
+          />
 
-    <button
-      onClick={handleSaveTitle}
-      className="rounded-xl bg-[var(--accent)] px-5 py-3 font-semibold text-[var(--bg)] hover:bg-[var(--accent-hover)]"
-    >
-      Save
-    </button>
+          <button
+            onClick={handleSaveTitle}
+            className="w-full rounded-xl bg-[var(--accent)] px-5 py-3 font-semibold text-[var(--bg)] transition hover:bg-[var(--accent-hover)] active:scale-[0.98] sm:w-auto"
+          >
+            Save
+          </button>
 
-    <button
-      onClick={() => setEditingTitle(false)}
-      className="rounded-xl border border-[var(--border)] px-5 py-3 font-semibold text-[var(--text-muted)] hover:bg-[var(--surface)]"
-    >
-      Cancel
-    </button>
-  </div>
-) : (
-  <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-  <h1 className="text-4xl font-black">{report.title}</h1>
+          <button
+            onClick={() => setEditingTitle(false)}
+            className="w-full rounded-xl border border-[var(--border)] px-5 py-3 font-semibold text-[var(--text-muted)] transition hover:bg-[var(--surface)] active:scale-[0.98] sm:w-auto"
+          >
+            Cancel
+          </button>
+        </div>
+      ) : (
+        <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="break-words text-2xl font-black sm:text-3xl md:text-4xl">
+            {report.title}
+          </h1>
 
-  <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <button
+              onClick={() => {
+                setTitleInput(report.title);
+                setEditingTitle(true);
+              }}
+              className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text-muted)] transition hover:bg-[var(--surface)] hover:text-[var(--text)] active:scale-[0.98]"
+            >
+              Rename Report
+            </button>
 
-    {/* Rename */}
-    <button
-      onClick={() => {
-        setTitleInput(report.title);
-        setEditingTitle(true);
-      }}
-      className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-[var(--text)]"
-    >
-      Rename Report
-    </button>
+            <button
+              onClick={(event) => handleDeleteReport(event, report)}
+              className="rounded-lg p-2 text-[var(--text-muted)] transition hover:bg-red-500/10 hover:text-red-400 active:scale-[0.95]"
+            >
+              <Trash2 size={18} />
+            </button>
+          </div>
+        </div>
+      )}
 
-    {/* Delete */}
-    <button
-      onClick={(event) => handleDeleteReport(event, report)}
-className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:text-red-400 transition duration-150"    >
-      <Trash2 size={18} />
-    </button>
-
-  </div>
-</div>
-)}
       <p className="mb-8 text-sm text-[var(--text-muted)]">
         Created: {new Date(report.created_at).toLocaleString()}
       </p>
 
-      <div className="mb-8 grid gap-4 lg:grid-cols-3">
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <ScoreCard
           title="Predatory Score"
           value={`${report.predatory_score}/100`}
@@ -245,18 +259,18 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
         />
       </div>
 
-      <div className="mb-8 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
-        <h2 className="mb-4 text-2xl font-bold">Summary</h2>
+      <div className="mb-8 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6">
+        <h2 className="mb-4 text-xl font-bold sm:text-2xl">Summary</h2>
         <GlossaryText
           as="p"
-          className="leading-8 text-[var(--text-muted)]"
+          className="break-words text-sm leading-7 text-[var(--text-muted)] sm:text-base sm:leading-8"
           text={report.summary || ""}
           glossary={FINANCE_GLOSSARY}
           glossaryPath="/glossary"
         />
       </div>
 
-      <div className="mb-8 grid items-start gap-6 lg:grid-cols-3">
+      <div className="mb-8 grid items-start gap-4 md:grid-cols-2 lg:grid-cols-3">
         <FlagColumn
           title="Green Flags"
           color="border-green-500"
@@ -288,39 +302,50 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
         />
       </div>
 
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
-        <h2 className="mb-2 text-2xl font-bold">Financial Impact</h2>
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6">
+        <h2 className="mb-2 text-xl font-bold sm:text-2xl">
+          Financial Impact
+        </h2>
 
         <GlossaryText
           as="p"
-          className="mb-6 text-[var(--text-muted)]"
+          className="mb-6 break-words text-sm leading-7 text-[var(--text-muted)] sm:text-base"
           text="This shows how much the borrower pays beyond the original loan amount."
           glossary={FINANCE_GLOSSARY}
           glossaryPath="/glossary"
         />
 
-        <div className="mb-8 grid gap-4 md:grid-cols-3">
+        <div className="mb-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           <MetricCard title="Original Loan" value={formatCurrency(baseCost)} />
-          <MetricCard title="Estimated Interest" value={formatCurrency(interestCost)} />
-          <MetricCard title="Estimated Total Paid" value={formatCurrency(totalPaid)} />
+          <MetricCard
+            title="Estimated Interest"
+            value={formatCurrency(interestCost)}
+          />
+          <MetricCard
+            title="Estimated Total Paid"
+            value={formatCurrency(totalPaid)}
+          />
         </div>
 
-        <div className="mb-10 rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-5">
-          <h3 className="mb-4 text-xl font-bold">Total Cost Over Time</h3>
+        <div className="mb-10 rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-4 sm:p-5">
+          <h3 className="mb-4 text-lg font-bold sm:text-xl">
+            Total Cost Over Time
+          </h3>
 
-          <div className="h-80">
+          <div className="h-[260px] sm:h-[320px] md:h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={paymentTimelineData}
-                margin={{ top: 10, right: 20, left: 24, bottom: 10 }}
+                margin={{ top: 10, right: 12, left: 4, bottom: 10 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                 <XAxis
                   type="number"
                   dataKey="year"
-                  domain={[0, totalYears]}
+                  domain={[0, safeTotalYears]}
                   ticks={yearTicks}
                   stroke="#94a3b8"
+                  tick={{ fontSize: 10 }}
                   tickFormatter={(value) => `${value}`}
                   label={{
                     value: "Years",
@@ -331,15 +356,18 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
                 />
                 <YAxis
                   stroke="#94a3b8"
-                  width={84}
+                  width={64}
+                  tick={{ fontSize: 10 }}
                   tickFormatter={(value) => `$${value.toLocaleString()}`}
                 />
                 <Tooltip
                   formatter={(value) => formatCurrency(value)}
-                  labelFormatter={(value) => `Year ${Number(value || 0).toFixed(2)}`}
+                  labelFormatter={(value) =>
+                    `Year ${Number(value || 0).toFixed(2)}`
+                  }
                   contentStyle={tooltipStyle}
                 />
-                <Legend wrapperStyle={{ bottom: -10 }} />
+                <Legend wrapperStyle={{ bottom: -10, fontSize: 12 }} />
 
                 <Line
                   type="monotone"
@@ -362,22 +390,26 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
             </ResponsiveContainer>
           </div>
 
-          <div className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-[var(--text-muted)]">
-            <p>
+          <div className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-sm leading-relaxed text-[var(--text-muted)]">
+            <p className="break-words">
               <GlossaryText
                 as="span"
                 text="You borrowed "
                 glossary={FINANCE_GLOSSARY}
                 glossaryPath="/glossary"
               />
-              <span className="font-bold text-[var(--text)]">{formatCurrency(baseCost)}</span>
+              <span className="font-bold text-[var(--text)]">
+                {formatCurrency(baseCost)}
+              </span>
               <GlossaryText
                 as="span"
                 text=", but will pay "
                 glossary={FINANCE_GLOSSARY}
                 glossaryPath="/glossary"
               />
-              <span className="font-bold text-[var(--text)]">{formatCurrency(totalPaid)}</span>
+              <span className="font-bold text-[var(--text)]">
+                {formatCurrency(totalPaid)}
+              </span>
               <GlossaryText
                 as="span"
                 text=". That means you are paying "
@@ -397,24 +429,34 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
           </div>
         </div>
 
-
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl bg-[var(--surface-strong)] p-5">
-            <h3 className="mb-4 text-xl font-bold">Cost Breakdown</h3>
+          <div className="rounded-2xl bg-[var(--surface-strong)] p-4 sm:p-5">
+            <h3 className="mb-4 text-lg font-bold sm:text-xl">
+              Cost Breakdown
+            </h3>
 
-            <div className="h-72">
+            <div className="h-[260px] sm:h-[320px] md:h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={costBreakdownData}
-                  margin={{ top: 10, right: 20, left: 24, bottom: 10 }}
+                  margin={{ top: 10, right: 12, left: 4, bottom: 10 }}
                 >
-                  <XAxis dataKey="name" stroke="#94a3b8" />
+                  <XAxis
+                    dataKey="name"
+                    stroke="#94a3b8"
+                    tick={{ fontSize: 10 }}
+                    interval={0}
+                  />
                   <YAxis
                     stroke="#94a3b8"
-                    width={84}
+                    width={64}
+                    tick={{ fontSize: 10 }}
                     tickFormatter={(value) => `$${value.toLocaleString()}`}
                   />
-                  <Tooltip formatter={(value) => formatCurrency(value)} contentStyle={tooltipStyle}/>
+                  <Tooltip
+                    formatter={(value) => formatCurrency(value)}
+                    contentStyle={tooltipStyle}
+                  />
                   <Bar dataKey="amount" radius={[8, 8, 0, 0]}>
                     {costBreakdownData.map((item, index) => (
                       <Cell key={index} fill={item.color} />
@@ -425,25 +467,38 @@ className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-red-500/10 hover:tex
             </div>
           </div>
 
-          <div className="rounded-2xl bg-[var(--surface-strong)] p-5">
-            <h3 className="mb-4 text-xl font-bold">Where the Money Goes</h3>
+          <div className="rounded-2xl bg-[var(--surface-strong)] p-4 sm:p-5">
+            <h3 className="mb-4 text-lg font-bold sm:text-xl">
+              Where the Money Goes
+            </h3>
 
-            <div className="h-72">
+            <div className="h-[260px] sm:h-[320px] md:h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={costBreakdownData.filter((item) => item.amount > 0)}
-                    dataKey="amount"
-                    nameKey="name"
-                    outerRadius={100}
-                    label={({ name, value }) => `${name}: ${formatCurrency(value)}`}
-                  >
-                    {costBreakdownData.map((item, index) => (
-                      <Cell key={index} fill={item.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => formatCurrency(value)} contentStyle={tooltipStyle} />
-                </PieChart>
+  <Pie
+    data={costBreakdownData.filter((item) => item.amount > 0)}
+    dataKey="amount"
+    nameKey="name"
+    outerRadius="70%"
+    labelLine={showPieLabels}
+    label={
+      showPieLabels
+        ? ({ name, value }) => `${name}: ${formatCurrency(value)}`
+        : false
+    }
+  >
+    {costBreakdownData
+      .filter((item) => item.amount > 0)
+      .map((item, index) => (
+        <Cell key={index} fill={item.color} />
+      ))}
+  </Pie>
+
+  <Tooltip
+    formatter={(value, name) => [formatCurrency(value), name]}
+    contentStyle={tooltipStyle}
+  />
+</PieChart>
               </ResponsiveContainer>
             </div>
           </div>
@@ -457,30 +512,39 @@ function ScoreCard({ title, value, color }) {
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5">
       <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
-        <GlossaryText text={title} glossary={FINANCE_GLOSSARY} glossaryPath="/glossary" />
+        <GlossaryText
+          text={title}
+          glossary={FINANCE_GLOSSARY}
+          glossaryPath="/glossary"
+        />
       </p>
-      <p className={`text-3xl font-bold ${color}`}>{value}</p>
+      <p className={`break-words text-2xl font-bold sm:text-3xl ${color}`}>
+        {value}
+      </p>
     </div>
   );
 }
 
 function FlagColumn({ title, color, items, isOpen, onToggle }) {
   return (
-    <div className={`rounded-2xl border-t-4 ${color} bg-[var(--surface)] p-6`}>
+    <div className={`rounded-2xl border-t-4 ${color} bg-[var(--surface)] p-5 sm:p-6`}>
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center justify-between gap-3 text-left text-xl font-bold"
+        className="flex w-full items-center justify-between gap-3 text-left text-lg font-bold transition active:scale-[0.98] sm:text-xl"
         aria-expanded={isOpen}
       >
         <span>{title}</span>
+
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-[var(--surface-strong)] px-3 py-1 text-sm text-[var(--text-muted)]">
             {items.length}
           </span>
+
           <span
-            className={`text-base text-[var(--text-muted)] transition-transform ${isOpen ? "rotate-180" : "rotate-0"
-              }`}
+            className={`text-base text-[var(--text-muted)] transition-transform ${
+              isOpen ? "rotate-180" : "rotate-0"
+            }`}
             aria-hidden="true"
           >
             ▾
@@ -489,20 +553,23 @@ function FlagColumn({ title, color, items, isOpen, onToggle }) {
       </button>
 
       <div
-        className={`grid overflow-hidden transition-all duration-300 ease-out ${isOpen ? "mt-4 opacity-100" : "mt-0 opacity-0"
-          }`}
+        className={`grid overflow-hidden transition-all duration-300 ease-out ${
+          isOpen ? "mt-4 opacity-100" : "mt-0 opacity-0"
+        }`}
         style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
       >
         <div className="overflow-hidden">
           {items.length === 0 ? (
-            <p className="text-[var(--text-muted)]">No items found.</p>
+            <p className="text-sm text-[var(--text-muted)]">No items found.</p>
           ) : (
-            <ul className="list-disc space-y-3 pl-5">
+            <ul className="list-disc space-y-3 pl-5 text-sm leading-7 text-[var(--text-muted)] sm:text-base">
               {items.map((item, index) => (
-                <li
-                  key={index}
-                >
-                  <GlossaryText text={String(item)} glossary={FINANCE_GLOSSARY} glossaryPath="/glossary" />
+                <li key={index} className="break-words">
+                  <GlossaryText
+                    text={String(item)}
+                    glossary={FINANCE_GLOSSARY}
+                    glossaryPath="/glossary"
+                  />
                 </li>
               ))}
             </ul>
@@ -529,7 +596,9 @@ function MetricCard({ title, value }) {
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-strong)] p-5">
       <p className="text-sm text-[var(--text-muted)]">{title}</p>
-      <p className="mt-2 text-2xl font-bold text-[var(--text)]">{value}</p>
+      <p className="mt-2 break-words text-xl font-bold text-[var(--text)] sm:text-2xl">
+        {value}
+      </p>
     </div>
   );
 }

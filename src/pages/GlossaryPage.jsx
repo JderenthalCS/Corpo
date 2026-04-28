@@ -13,14 +13,14 @@ export default function GlossaryPage() {
     .sort((a, b) => a[0].localeCompare(b[0]));
 
   return (
-    <section>
+    <section className="w-full px-4 py-6 sm:px-6 md:px-8">
       <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--accent)]">
         Corpo Reference
       </p>
 
-      <h1 className="mb-2 text-4xl font-black">Glossary</h1>
+      <h1 className="mb-2 text-3xl font-black sm:text-4xl">Glossary</h1>
 
-      <p className="mb-8 max-w-3xl text-sm text-[var(--text-muted)]">
+      <p className="mb-6 max-w-3xl text-sm text-[var(--text-muted)] sm:mb-8">
         Definitions for terms used throughout your loan analysis reports.
       </p>
 
@@ -28,15 +28,16 @@ export default function GlossaryPage() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search terms..."
-        className="mb-6 w-full max-w-md rounded-xl border border-[var(--border)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
+        className="mb-6 w-full min-w-0 rounded-xl border border-[var(--border)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] sm:max-w-md"
       />
 
-      <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]">
-        <table className="w-full text-left">
-          <thead className="sticky top-0 z-10 bg-[var(--surface-strong)] text-xs uppercase tracking-wide text-[var(--text-muted)]">
+      {/* ✅ SCROLL CONTAINER */}
+      <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)]">
+        <table className="min-w-[600px] w-full text-left">
+          <thead className="bg-[var(--surface-strong)] text-xs uppercase tracking-wide text-[var(--text-muted)]">
             <tr>
-              <th className="px-5 py-4 font-semibold">Term</th>
-              <th className="px-5 py-4 font-semibold">Definition</th>
+              <th className="px-4 py-3 sm:px-5 sm:py-4 font-semibold">Term</th>
+              <th className="px-4 py-3 sm:px-5 sm:py-4 font-semibold">Definition</th>
             </tr>
           </thead>
 
@@ -51,10 +52,11 @@ export default function GlossaryPage() {
                     : "bg-[var(--surface-strong)]/40"
                 } transition hover:bg-[var(--surface-strong)]`}
               >
-                <td className="w-[220px] px-5 py-4 align-top font-semibold text-[var(--text)]">
+                <td className="w-[180px] px-4 py-3 sm:w-[220px] sm:px-5 sm:py-4 align-top font-semibold text-[var(--text)] whitespace-nowrap">
                   {term}
                 </td>
-                <td className="px-5 py-4 text-sm leading-7 text-[var(--text-muted)]">
+
+                <td className="px-4 py-3 sm:px-5 sm:py-4 text-sm leading-6 sm:leading-7 text-[var(--text-muted)]">
                   {definition}
                 </td>
               </tr>
@@ -62,6 +64,12 @@ export default function GlossaryPage() {
           </tbody>
         </table>
       </div>
+
+      {entries.length === 0 && (
+        <p className="mt-6 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 text-sm text-[var(--text-muted)]">
+          No glossary terms found.
+        </p>
+      )}
     </section>
   );
 }
