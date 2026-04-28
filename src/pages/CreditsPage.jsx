@@ -71,7 +71,7 @@ function CreditItem({ name, description, url, icon, icons, iconAlt = `${name} ic
       const it = icons[i];
       const src = typeof it === "string" ? it : it.icon || it.src;
       const link = typeof it === "string" ? url : it.url || url;
-      const alt = (typeof it === "string" ? iconAlt : it.alt || iconAlt) + (i > 0 ? ` ${i + 1}` : "");
+      const alt = (typeof it === "string" ? iconAlt : it.alt || iconAlt);
 
       iconNodes.push(
         <a
@@ -79,10 +79,11 @@ function CreditItem({ name, description, url, icon, icons, iconAlt = `${name} ic
           href={link}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex h-6 w-6 items-center justify-center overflow-hidden rounded-lg border border-[var(--border)] p-0.5 transition hover:border-[var(--accent)]"
+          className="inline-flex w-full items-center justify-center rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-semibold text-[var(--text-muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent)] sm:w-auto"
           aria-label={`${name} website ${i + 1}`}
         >
-          <img src={src} alt={alt} className="h-4 w-4 object-cover block" />
+          {/* <img src={src} alt={alt} className="h-4 w-4 object-cover block" /> */}
+          {alt} ↗
         </a>
       );
     }
@@ -102,10 +103,11 @@ function CreditItem({ name, description, url, icon, icons, iconAlt = `${name} ic
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex h-6 w-6 items-center justify-center overflow-hidden rounded-lg border border-[var(--border)] p-0.5 transition hover:border-[var(--accent)]"
+          className="inline-flex w-full items-center justify-center rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-semibold text-[var(--text-muted)] transition hover:border-[var(--accent)] hover:text-[var(--accent)] sm:w-auto"
           aria-label={`${name} website`}
         >
-          <img src={icon} alt={iconAlt} className="h-4 w-4 object-cover block" />
+          {/* <img src={icon} alt={iconAlt} className="h-4 w-4 object-cover block" /> */}
+          {iconAlt} ↗
         </a>
       ) : url ? (
         <a
