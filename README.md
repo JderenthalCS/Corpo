@@ -2,69 +2,107 @@
   <img src="src/img/logoAccent.png" alt="Corpo Logo" width="200"/>
 </div>
 
-# Corpo
+<h1 align="center"><b>Corpo</b></h1>
 
-A contract clarity platform that turns dense legal agreements into plain-English summaries, risk flags, and visual cost breakdowns.
+<div align="center">
 
-## What it does
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![Gemini](https://img.shields.io/badge/Gemini-AI-blue?style=for-the-badge)
 
-Upload any lease, loan, or contract and Corpo will:
+</div>
 
-- Generate a plain-English summary of the document
-- Flag green, yellow, and red risk clauses
-- Calculate a predatory score from 0–100
-- Show a full financial impact breakdown with charts
-- Store all reports in one searchable place
+<p align="center">
+  🏆 1st Place Hackathon Winner
+</p>
+
+<p align="center">
+  A contract clarity platform that transforms dense legal agreements into clear summaries, risk insights, and financial breakdowns.
+</p>
+
+---
+
+## 📚 Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [How it Works](#how-it-works)
+- [Installation](#installation)
+- [Project Structure](#project-structure)
+- [Contributors](#contributors)
+- [Acknowledgments](#acknowledgments)
+
+---
+
+## Overview
+
+Corpo was built to solve a simple problem:
+
+> Most people sign contracts they don’t fully understand.
+
+Corpo analyzes leases, loans, and agreements and converts them into:
+- Plain-English summaries  
+- Risk indicators  
+- Financial breakdowns  
+
+---
+
+## Features
+
+- **Plain-English Summaries** — Simplifies complex legal language  
+- **Risk Flagging System** — Highlights clauses as green, yellow, or red  
+- **Predatory Score (0–100)** — Quantifies contract risk  
+- **Financial Breakdown** — Visualizes total cost over time  
+- **Report Storage** — Saves and organizes past analyses  
+- **Drag & Drop Upload** — Simple document ingestion  
+
+---
 
 ## Tech Stack
 
-**Frontend**
-- React + Vite
-- Tailwind CSS
-- React Router
-- Recharts
+### Frontend
+- React + Vite  
+- TailwindCSS  
+- React Router  
+- Recharts  
 
-**Backend**
-- Supabase (database, auth, storage)
-- FastAPI (Python)
-- Gemini (AI document analysis)
+### Backend
+- FastAPI (Python)  
+- Gemini API (LLM document analysis)  
 
-## Getting Started
+### Database & Auth
+- Supabase (PostgreSQL, Auth, Storage)
+
+---
+
+## How it Works
+
+1. User uploads a contract  
+2. Backend processes text and sends it to Gemini  
+3. AI extracts:
+   - Summary  
+   - Key clauses  
+   - Risk indicators  
+4. Financial logic calculates long-term cost  
+5. Results are stored and displayed with charts  
+
+---
+
+## Installation
 
 ### Prerequisites
+- Node.js 18+  
+- Python 3.10+  
+- Supabase project  
+- Gemini API key  
 
-- Node.js 18+
-- Python 3.10+
-- A Supabase project
-- A Gemini API key
+---
 
-### Quick Start (Automated Setup)
-
-**On macOS/Linux:**
-```bash
-./setup.sh
-./start.sh
-```
-
-**On Windows:**
-```bash
-setup.cmd
-start.cmd
-```
-
-The `setup.sh`/`setup.cmd` script will:
-- Create `.env` files with placeholders for environment variables
-- Set up a Python virtual environment in `backend/venv`
-- Install all backend dependencies
-
-The `start.sh`/`start.cmd` script will:
-- Activate the Python virtual environment
-- Start the FastAPI backend server on `http://localhost:8000`
-- Install frontend dependencies and start the Vite dev server on `http://localhost:5173`
-
-**Note:** After running setup, edit the `.env` files to add your actual API keys.
-
-### Manual Setup
+### Quick Start
 
 ```bash
 git clone https://github.com/JderenthalCS/Corpo.git
@@ -73,14 +111,9 @@ npm install
 npm run dev
 ```
 
-Create a `.env` file in the root:
+---
 
-```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-### Backend Setup
+## Backend
 
 ```bash
 cd backend
@@ -88,71 +121,28 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-Create a `.env` file in the backend folder:
-
-```env
-SUPABASE_URL=your_supabase_url
-SUPABASE_SERVICE_KEY=your_supabase_service_key
-OPENAI_API_KEY=your_openai_api_key
-```
+---
 
 ## Project Structure
 
-```
+```bash
 corpo/
-├── public/
 ├── src/
-│   ├── components/
-│   │   ├── Navbar.jsx
-│   │   └── Footer.jsx
-│   ├── img/
-│   │   ├── logoBlack.png
-│   │   ├── logoWhite.png
-│   │   └── logoAccent.png
-│   ├── lib/
-│   │   ├── supabaseClient.js
-│   │   └── theme.js
-│   ├── pages/
-│   │   ├── LandingPage.jsx
-│   │   ├── UploadPage.jsx
-│   │   ├── ReportsPage.jsx
-│   │   ├── ReportDetailPage.jsx
-│   │   ├── AccountPage.jsx
-│   │   └── AuthPage.jsx
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
 ├── backend/
-│   ├── main.py
-│   └── requirements.txt
+├── public/
 ├── .env
-├── index.html
 ├── vite.config.js
-├── tailwind.config.js
 └── README.md
 ```
 
-## Environment Variables
+---
 
-| Variable | Description |
-|---|---|
-| `VITE_SUPABASE_URL` | Your Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | Your Supabase anon public key |
-| `SUPABASE_SERVICE_KEY` | Your Supabase service role key (backend only) |
-| `GEMINI_API_KEY` | Your Gemini API key |
 
-## Features
+# Contributors
+<table align="center"> <tr> <td align="center"> <a href="https://github.com/JderenthalCS"> <img src="https://github.com/JderenthalCS.png" width="100px;" /><br /> <sub><b>Justin Derenthal</b></sub><br /> <sub>Full-Stack / AI</sub> </a> </td> <td align="center"> <a href="https://github.com/ryguy0601"> <img src="https://github.com/ryguy0601.png" width="100px;" /><br /> <sub><b>Ryan</b></sub><br /> <sub>Frontend / Design</sub> </a> </td> </tr> </table>
 
-- **Risk Flagging** — Catches hidden penalties and unfair obligations
-- **Cost Timeline** — Visualizes total cost over the life of a contract
-- **Report Archive** — Stores and indexes every analysis
-- **Theme Support** — Dark, light, and system theme modes
-- **Drag and Drop** — Simple file upload experience
+---
 
-## Credits
+## Acknowledgments
+Logo designed & UI insight by [Dylan Berkowitz](https://www.linkedin.com/in/dylan-berkowitz-862958334/)
 
-Built by the Corpo team. Special thanks to all contributors who have helped make contract analysis more accessible and transparent.
-
-## License
-
-MIT
