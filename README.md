@@ -139,7 +139,7 @@ corpo/
 
 
 # Contributors
-<table align="center"> <tr> <td align="center"> <a href="https://github.com/JderenthalCS"> <img src="https://github.com/JderenthalCS.png" width="100px;" /><br /> <sub><b>Justin Derenthal</b></sub><br /> <sub>Full-Stack / AI</sub> </a> </td> <td align="center"> <a href="https://github.com/ryguy0601"> <img src="https://github.com/ryguy0601.png" width="100px;" /><br /> <sub><b>Ryan</b></sub><br /> <sub>Frontend / Design</sub> </a> </td> </tr> </table>
+<table align="center"> <tr> <td align="center"> <a href="https://github.com/JderenthalCS"> <img src="https://github.com/JderenthalCS.png" width="100px;" /><br /> <sub><b>Justin Derenthal</b></sub><br /> </a> </td> <td align="center"> <a href="https://github.com/ryguy0601"> <img src="https://github.com/ryguy0601.png" width="100px;" /><br /> <sub><b>Ryan Cuccurullo</b></sub><br /> </a> </td> </tr> </table>
 
 ---
 
