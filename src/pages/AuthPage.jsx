@@ -12,13 +12,87 @@ export default function AuthPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  async function createDemoReports(userId) {
+    const demoReports = [
+      {
+        user_id: userId,
+        title: "Demo: Predatory Auto Loan",
+        summary:
+          "This auto loan contains several highly unfavorable terms, including a very high APR, short late-payment window, early payoff penalty, discretionary fees, automatic loan extension, and repossession without prior notice.",
+        predatory_score: 95,
+        risk_level: "High",
+        green_flags: [],
+        yellow_flags: [
+          "The monthly payment and loan term are clearly stated.",
+          "Some fees are disclosed directly in the agreement.",
+        ],
+        red_flags: [
+          "APR is extremely high at 21.99%.",
+          "Late fee applies after only 2 days.",
+          "Early payoff penalty punishes the borrower for paying off the loan early.",
+          "The lender may increase the interest rate based on borrower risk profile.",
+          "The loan can automatically extend after missed payments.",
+          "Vehicle may be repossessed without prior notice.",
+          "Borrower may still owe money after repossession.",
+        ],
+        financial_impact: {
+          base_cost: 18500,
+          monthly_payment: 485,
+          term_months: 84,
+          total_paid: 40740,
+          total_interest: 22240,
+          fees: 1450,
+          penalties: 95,
+          risk_exposure: 3000,
+        },
+      },
+      {
+        user_id: userId,
+        title: "Demo: Mortgage Closing Disclosure",
+        summary:
+          "This is a legitimate but complex mortgage disclosure. The loan has a fixed interest rate and clear payment terms, but the borrower should carefully review total interest, closing costs, escrow requirements, prepayment penalty, and foreclosure-related disclosures.",
+        predatory_score: 38,
+        risk_level: "Medium",
+        green_flags: [
+          "Fixed interest rate.",
+          "Loan amount and monthly payment are clearly disclosed.",
+          "Total payments and finance charge are shown.",
+          "Escrow information is explained.",
+        ],
+        yellow_flags: [
+          "The borrower will pay significant interest over the life of the loan.",
+          "Closing costs are substantial.",
+          "There is a prepayment penalty during the first 2 years.",
+          "Property costs and escrow payments may change over time.",
+        ],
+        red_flags: [],
+        financial_impact: {
+          base_cost: 162000,
+          monthly_payment: 1050.26,
+          term_months: 360,
+          total_paid: 285803,
+          total_interest: 118830,
+          fees: 9712,
+          penalties: 3240,
+          risk_exposure: 3240,
+        },
+      },
+    ];
+
+    const { error } = await supabase.from("reports").insert(demoReports);
+
+    if (error) {
+      console.error("Demo report insert error:", error);
+    }
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setLoading(true);
     setMessage("");
 
     if (isSignUp) {
-      const { error } = await supabase.auth.signUp({
+            const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -31,7 +105,15 @@ export default function AuthPage() {
       if (error) {
         setMessage(error.message);
       } else {
-        setMessage("Account created. You can now log in.");
+        const userId = data.user?.id;
+
+if (userId) {
+  await createDemoReports(userId);
+} else {
+  console.warn("User created but no user ID returned yet.");
+}
+
+        setMessage("Account created with demo reports. You can now log in.");
         setIsSignUp(false);
       }
     } else {
